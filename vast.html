@@ -7,6 +7,8 @@
 <div id="plane">
 </div>
 <script>
+var rootContext = "S:/avlab/vast";
+//init
 var imgarr= {};
 imgarr.vast1 = "nwe";
 imgarr.vast2 = "ews";
@@ -15,6 +17,8 @@ var north = [];
 var south = [];
 var east = [];
 var west = [];
+
+//fill each cardinal array with every image that can move in that direction
 for (img in imgarr){
 	if (imgarr[img].includes("n")){
 		north.push(img);
@@ -29,20 +33,21 @@ for (img in imgarr){
 		west.push(img);
 	};
 }
+
+//make a random starting img
 var directions = ["north","south","east","west"];
 var foo = Math.floor(Math.random() * 3);
 var blah = Object.keys(imgarr);
 var startImg = blah[foo];
-var imgpath = 'S:/avlab/vast/images/' + startImg + '.png'
+var imgpath = rootContext + '/images/' + startImg + '.png'
 $('#plane').css({
 	height:"190px",
 	width:"320px",
 	backgroundRepeat: "no-repeat"
 });
 $('#plane').css("background-image","url(" + imgpath+ ")");
-</script>
-<script>
-var directions = ["north","south","east","west"];
+
+//make buttons
 for (dir in directions){
 	var inputElement = document.createElement('input');
 	inputElement.type = "button";
@@ -61,6 +66,8 @@ $('#east').click(function(){
 $('#west').click(function(){
 	loadImg("west");
 });
+
+//call this function when the move buttons are pushed
 function loadImg(directionFrom){
 	console.log(directionFrom);
 	if (directionFrom == "north"){
