@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+</head>
+<body>
+<div id="plane">
+</div>
+<script>
+var imgarr= {};
+imgarr.vast1 = "nwe";
+imgarr.vast2 = "ews";
+imgarr.vast4 = "ns";
+var north = [];
+var south = [];
+var east = [];
+var west = [];
+for (img in imgarr){
+	if (imgarr[img].includes("n")){
+		north.push(img);
+	};
+	if (imgarr[img].includes("s")){
+		south.push(img);
+	};
+	if (imgarr[img].includes("e")){
+		east.push(img);
+	};
+	if (imgarr[img].includes("w")){
+		west.push(img);
+	};
+}
+var directions = ["north","south","east","west"];
+var foo = Math.floor(Math.random() * 3);
+var blah = Object.keys(imgarr);
+var startImg = blah[foo];
+var imgpath = 'S:/avlab/vast/images/' + startImg + '.png'
+$('#plane').css({
+	height:"190px",
+	width:"320px",
+	backgroundRepeat: "no-repeat"
+});
+$('#plane').css("background-image","url(" + imgpath+ ")");
+</script>
+<script>
+var directions = ["north","south","east","west"];
+for (dir in directions){
+	var inputElement = document.createElement('input');
+	inputElement.type = "button";
+	inputElement.id = directions[dir];
+	document.body.appendChild(inputElement);
+}
+$('#north').click(function(){
+	loadImg("north");
+});
+$('#south').click(function(){
+	loadImg("south");
+});
+$('#east').click(function(){
+	loadImg("east");
+});
+$('#west').click(function(){
+	loadImg("west");
+});
+function loadImg(directionFrom){
+	console.log(directionFrom);
+	if (directionFrom == "north"){
+		var directionTo="south";
+	} else if (directionFrom == "south"){
+		var directionTo="north";
+	} else if (directionFrom == "east"){
+		var directionTo="west";
+	} else if (directionFrom == "west"){
+		var directionTo="east";
+	}
+	console.log(directionTo);
+}
+</script>
+<script>
+
+</script>
+</body>
+</html>
