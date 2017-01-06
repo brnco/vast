@@ -69,15 +69,42 @@ $('#west').click(function(){
 
 //call this function when the move buttons are pushed
 function loadImg(directionFrom){
-	console.log(directionFrom);
+	var currentImgUrl = $('#plane').css('background-image'); //grip source of current img
+	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
+	var result = myRe.exec(currentImgUrl); //run that pattern against the url
+	var vastImg = result[0]; //set the result = vast123, the 0th index of the array that returns from the regex search
 	if (directionFrom == "north"){
 		var directionTo="south";
+		if (imgarr[vastImg].includes("n")){ //check to make sure we can move in this direction on this plane
+			var newImgIndex = Math.floor(Math.random() * south.length) //generate a random index for the direction we wanna go
+			var newImgName = south[newImgIndex]; //grip the name of that image
+			var imgpath = rootContext + '/images/' + newImgName+ '.png' //grip the path to that image
+			$('#plane').css("background-image","url(" + imgpath + ")"); //pop it into the div
+		}
 	} else if (directionFrom == "south"){
 		var directionTo="north";
+		if (imgarr[vastImg].includes("s")){
+			var newImgIndex = Math.floor(Math.random() * north.length)
+			var newImgName = north[newImgIndex];
+			var imgpath = rootContext + '/images/' + newImgName+ '.png'
+			$('#plane').css("background-image","url(" + imgpath + ")");
+		}
 	} else if (directionFrom == "east"){
 		var directionTo="west";
+		if (imgarr[vastImg].includes("e")){
+			var newImgIndex = Math.floor(Math.random() * west.length)
+			var newImgName = west[newImgIndex];
+			var imgpath = rootContext + '/images/' + newImgName+ '.png'
+			$('#plane').css("background-image","url(" + imgpath + ")");
+		}
 	} else if (directionFrom == "west"){
 		var directionTo="east";
+		if (imgarr[vastImg].includes("w")){
+			var newImgIndex = Math.floor(Math.random() * east.length)
+			var newImgName = east[newImgIndex];
+			var imgpath = rootContext + '/images/' + newImgName+ '.png'
+			$('#plane').css("background-image","url(" + imgpath + ")");
+		}
 	}
 	console.log(directionTo);
 }
