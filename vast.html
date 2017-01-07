@@ -7,9 +7,21 @@
 <div id="plane">
 </div>
 <script>
-var rootContext = "S:/avlab/vast";
+var rootContext = "/Volumes/thedata/developments/vast";
 //init
-var imgarr= {};
+var imgarr= (function() {
+	var imgarr = null;
+	$.ajax({
+		'async': false,
+        'global': false,
+        'url': "images.json",
+        'dataType': "json",
+        'success': function (data) {
+            json = data;
+        }
+	});
+	return json;
+})();
 imgarr.vast1 = "nwe";
 imgarr.vast2 = "ews";
 imgarr.vast4 = "ns";
@@ -35,14 +47,15 @@ for (img in imgarr){
 }
 
 //make a random starting img
-var imgIndex = Math.floor(Math.random() * 3);
+var imgIndex = Math.floor(Math.random() * 259);
 var imgarrKeys = Object.keys(imgarr);
 var startImg = imgarrKeys[imgIndex];
 var imgpath = rootContext + '/images/' + startImg + '.png'
 $('#plane').css({
 	height:"190px",
 	width:"320px",
-	backgroundRepeat: "no-repeat"
+	backgroundRepeat: "no-repeat",
+	backgroundSize:"320px 190px"
 });
 $('#plane').css("background-image","url(" + imgpath+ ")");
 
@@ -51,6 +64,7 @@ var directions = ["north","south","east","west"];
 for (dir in directions){
 	var inputElement = document.createElement('input');
 	inputElement.type = "button";
+	inputElement.value = directions[dir];
 	inputElement.id = directions[dir];
 	document.body.appendChild(inputElement);
 }
