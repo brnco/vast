@@ -7,7 +7,7 @@
 <div id="plane">
 </div>
 <script>
-var rootContext = "/Volumes/thedata/developments/vast";
+var rootContext = "/vast";
 //init
 var imgarr= (function() {
 	var imgarr = null;
@@ -51,13 +51,21 @@ var imgIndex = Math.floor(Math.random() * 259);
 var imgarrKeys = Object.keys(imgarr);
 var startImg = imgarrKeys[imgIndex];
 var imgpath = rootContext + '/images/' + startImg + '.png'
+console.log("image path " + imgpath);
 $('#plane').css({
 	height:"190px",
 	width:"320px",
 	backgroundRepeat: "no-repeat",
 	backgroundSize:"320px 190px"
 });
-$('#plane').css("background-image","url(" + imgpath+ ")");
+//$('#plane').css("background-image","url(" + imgpath+ ")");
+//$('#plane').load(imgpath + ' #plane');
+var image = new Image();
+image.src = imgpath;
+image.onload = function() {
+	$('#plane').empty().append(image);
+}
+
 
 //make buttons
 var directions = ["north","south","east","west"];
@@ -83,9 +91,10 @@ $('#west').click(function(){
 
 //call this function when the move buttons are pushed
 function loadImg(directionFrom){
-	var currentImgUrl = $('#plane').css('background-image'); //grip source of current img
+	var currentImg = $('#plane').children("img").attr('src'); //grip source of current img
+	console.log(currentImg);
 	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
-	var result = myRe.exec(currentImgUrl); //run that pattern against the url
+	var result = myRe.exec(currentImg); //run that pattern against the url
 	var vastImg = result[0]; //set the result = vast123, the 0th index of the array that returns from the regex search
 	if (directionFrom == "north"){
 		var directionTo="south";
@@ -93,7 +102,15 @@ function loadImg(directionFrom){
 			var newImgIndex = Math.floor(Math.random() * south.length) //generate a random index for the direction we wanna go
 			var newImgName = south[newImgIndex]; //grip the name of that image
 			var imgpath = rootContext + '/images/' + newImgName+ '.png' //grip the path to that image
-			$('#plane').css("background-image","url(" + imgpath + ")"); //pop it into the div
+			//$('#plane').css("background-image","url(" + imgpath + ")"); //pop it into the div
+			//$('#plane').load(imgpath + ' #plane');
+			var image = new Image();
+			image.src = imgpath;
+			image.onload = function() {
+				$('#plane').empty().append(image);
+			}
+			var stateObj = newImgName;
+			history.pushState(stateObj, "page 2", newImgName + ".php");
 		}
 	} else if (directionFrom == "south"){
 		var directionTo="north";
@@ -120,7 +137,15 @@ function loadImg(directionFrom){
 			$('#plane').css("background-image","url(" + imgpath + ")");
 		}
 	}
-	console.log(directionTo);
+	window.addEventListener('popstate', function(e){
+		var character = e.state;
+		if (chacater == null){
+
+		}
+		else {
+			$('#plane').load(character + ' #plane');
+		}
+	})
 }
 </script>
 <script>
