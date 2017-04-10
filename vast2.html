@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+</head>
+<body>
+<div id="plane">
+</div>
+<script>
+var rootContext = "/vast2";
+//init
+var imgarr= (function() {
+	var imgarr = null;
+	$.ajax({
+		'async': false,
+        'global': false,
+        'url': "images.json",
+        'dataType': "json",
+        'success': function (data) {
+            json = data;
+        }
+	});
+	return json;
+})();
+var north = [];
+var south = [];
+var east = [];
+var west = [];
+
+//fill each cardinal array with every image that can move in that direction
+for (img in imgarr){
+	if (imgarr[img].includes("n")){
+		north.push(img);
+	};
+	if (imgarr[img].includes("s")){
+		south.push(img);
+	};
+	if (imgarr[img].includes("e")){
+		east.push(img);
+	};
+	if (imgarr[img].includes("w")){
+		west.push(img);
+	};
+}
+
+//make a random starting img
+var imgIndex = Math.floor(Math.random() * 259);
+var imgarrKeys = Object.keys(imgarr);
+var startImg = imgarrKeys[imgIndex];
+var imgpath = rootContext + '/images/' + startImg + '.png'
+console.log("image path " + imgpath);
+$('#plane').css({
+	height:"190px",
+	width:"320px",
+	backgroundRepeat: "no-repeat",
+	backgroundSize:"320px 190px"
+});
+//$('#plane').css("background-image","url(" + imgpath+ ")");
+//$('#plane').load(imgpath + ' #plane');
+var image = new Image();
+image.src = imgpath;
+image.onload = function() {
+	$('#plane').empty().append(image);
+}
+
+var map = {
+	startImg: {
+		"n":"","s":"","e":"","w":""
+	}
+};
+/*
+if (typeof map.startImg["w"] != 'undefined'){
+	console.log(map.startImg["w"]);
+};
+*/
+
+//make buttons
+var directions = ["north","south","east","west"];
+for (dir in directions){
+	var inputElement = document.createElement('input');
+	inputElement.type = "button";
+	inputElement.value = directions[dir];
+	inputElement.id = directions[dir];
+	document.body.appendChild(inputElement);
+}
+$('#north').click(function(){
+	loadImg("north");
+});
+$('#south').click(function(){
+	loadImg("south");
+});
+$('#east').click(function(){
+	loadImg("east");
+});
+$('#west').click(function(){
+	loadImg("west");
+});
+
+//call this function when the move buttons are pushed
+function loadImg(directionFrom){
+	var currentImg = $('#plane').children("img").attr('src'); //grip source of current img
+	console.log(currentImg)
+	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
+	var result = myRe.exec(currentImg); //run that pattern against the url
+	console.log(result)
+	var vastImg = result[0]; //set the result = vast123, the 0th index of the array that returns from the regex search
+	console.log(vastImg)
+	if (directionFrom == "north"){
+		var directionTo="south";
+		console.log(imgarr[vastImg]);
+		if (imgarr[vastImg].includes("n")){ //check to make sure we can move in this direction on this plane
+
+			var newImgIndex = Math.floor(Math.random() * south.length) //generate a random index for the direction we wanna go
+			
+			var newImgName = south[newImgIndex]; //grip the name of that image
+			var imgpath = rootContext + '/images/' + newImgName+ '.png' //grip the path to that image
+			var image = new Image();
+			image.src = imgpath;
+			console.log(newImgIndex);
+			//image.onload = function() {
+				$('#plane').empty().append(image);
+			//}
+		}
+	} else if (directionFrom == "south"){
+		var directionTo="north";
+		if (imgarr[vastImg].includes("s")){
+			var newImgIndex = Math.floor(Math.random() * north.length)
+			var newImgName = north[newImgIndex];
+			var imgpath = rootContext + '/images/' + newImgName+ '.png'
+		}
+	} else if (directionFrom == "east"){
+		var directionTo="west";
+		if (imgarr[vastImg].includes("e")){
+			var newImgIndex = Math.floor(Math.random() * west.length)
+			var newImgName = west[newImgIndex];
+			var imgpath = rootContext + '/images/' + newImgName+ '.png'
+		}
+	} else if (directionFrom == "west"){
+		var directionTo="east";
+		if (imgarr[vastImg].includes("w")){
+			var newImgIndex = Math.floor(Math.random() * east.length)
+			var newImgName = east[newImgIndex];
+			var imgpath = rootContext + '/images/' + newImgName+ '.png'
+		}
+	}
+
+}
+</script>
+<script>
+
+</script>
+</body>
+</html>

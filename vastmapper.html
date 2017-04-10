@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+</head>
+<body>
+<div id="plane">
+</div>
+<script>
+var rootContext = "/vastmapper";
+//init
+var imgarr= (function() {
+	var imgarr = null;
+	$.ajax({
+		'async': false,
+        'global': false,
+        'url': "images.json",
+        'dataType': "json",
+        'success': function (data) {
+            json = data;
+        }
+	});
+	return json;
+})();
+//init array for opposite direction values
+var opposite = {
+	"n":"s",
+	"s":"n",
+	"e":"w",
+	"w":"e"
+}
+//make a random starting img
+var imgIndex = Math.floor(Math.random() * 259);
+var imgarrKeys = Object.keys(imgarr);
+var startImg = imgarrKeys[imgIndex];
+var imgpath = rootContext + '/images/' + startImg + '.png';
+//console.log("image path " + imgpath);
+$('#plane').css({
+	height:"190px",
+	width:"320px",
+	backgroundRepeat: "no-repeat",
+	backgroundSize:"320px 190px"
+});
+//$('#plane').css("background-image","url(" + imgpath+ ")");
+//$('#plane').load(imgpath + ' #plane');
+var image = new Image();
+image.src = imgpath;
+image.onload = function() {
+	$('#plane').empty().append(image);
+}
+//validate indicies of neighbors
+//make sure that new tiles to be added are not
+//1) not the first tile
+//2) that it can link back to its neighbor
+function nextChecker(imgarr, imgarrKeys, direction, neighborIndex, opposite, themap){
+	if (neighborIndex == imgIndex){
+		return false;
+	} else if (imgarr[imgarrKeys[neighborIndex]].indexOf(opposite[direction])<0){
+		return false;
+	} else {
+		return true;
+	}
+}
+//init stuff
+var themap = {};
+var a = Object.keys(themap);
+var neighborhood = {};
+themap[startImg] = neighborhood;
+//build a neighborhood for the startImg
+for (v in imgarr[startImg]){
+	var direction = imgarr[startImg][v];
+	var output = false;
+	while (output == false){
+		var neighborIndex = Math.floor(Math.random() * 259);
+		//console.log(neighborIndex);
+		//console.log(imgarrKeys[neighborIndex]);
+		//console.log(Object.keys(themap).indexOf(imgarrKeys[neighborIndex]));
+		//console.log(themap);
+		output = nextChecker(imgarr, imgarrKeys, direction, neighborIndex, opposite, themap);
+		//console.log(output);
+	}
+	var neighbor = imgarrKeys[neighborIndex];
+	//console.log(neighbor);
+	neighborhood[direction] = neighbor;
+};
+//assign the neighborhood to themap at index startImg
+themap[startImg] = neighborhood;
+//compute the diff between the empty map and our new themap
+var diff = Object.keys(themap).filter(function(x) { return a.indexOf(x) < 0});
+//loop through the new tiles added to the map
+//as long as new tiles are added, 
+while (typeof diff[0] !== 'undefined' && diff[0] !== null){
+	a = Object.keys(themap);
+	for (vnIndex in diff){ //for vastNumberIndex in list of images that were added
+		currentVastNum = diff[vnIndex]; //vast number for item in themap we'd like to loop thru
+		for (direction in themap[currentVastNum]){
+			directionToVastNum = themap[currentVastNum][direction];
+			var neighborhood = {};
+			for (dIndex in imgarr[directionToVastNum]){
+				directionToVastd = imgarr[directionToVastNum][dIndex];
+				var output = false;
+				count = 0;
+				while (output == false){
+					var neighborIndex = Math.floor(Math.random() * 259);
+					output = nextChecker(imgarr, imgarrKeys, direction, neighborIndex, opposite, themap);
+				}
+				var neighbor = imgarrKeys[neighborIndex];
+				neighborhood[direction] = neighbor;
+			}
+			themap[directionToVastNum] = neighborhood;
+		}
+		themap[directionToVastNum][opposite[direction]] = currentVastNum; //overwrite whatever is in there with vastNum for directionwe're coming from
+	}
+	var diff = Object.keys(themap).filter(function(x) { return a.indexOf(x) < 0});
+}
+delete themap["undefined"];
+console.log(themap)
+</script>
+</body>
+</html>
