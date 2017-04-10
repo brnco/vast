@@ -91,26 +91,26 @@ var diff = Object.keys(themap).filter(function(x) { return a.indexOf(x) < 0});
 //loop through the new tiles added to the map
 //as long as new tiles are added, 
 while (typeof diff[0] !== 'undefined' && diff[0] !== null){
-	a = Object.keys(themap);
+	a = Object.keys(themap); //assign array to the tiles currently in
 	for (vnIndex in diff){ //for vastNumberIndex in list of images that were added
 		currentVastNum = diff[vnIndex]; //vast number for item in themap we'd like to loop thru
-		for (direction in themap[currentVastNum]){
-			directionToVastNum = themap[currentVastNum][direction];
-			var neighborhood = {};
-			for (dIndex in imgarr[directionToVastNum]){
-				directionToVastd = imgarr[directionToVastNum][dIndex];
-				var output = false;
-				count = 0;
+		for (direction in themap[currentVastNum]){ //for directions available in current tile
+			directionToVastNum = themap[currentVastNum][direction]; //the vastNum at the direction we're coming from
+			var neighborhood = {}; //init
+			for (dIndex in imgarr[directionToVastNum]){ //loop thru directions available for this tile
+				var output = false; //init
 				while (output == false){
+					//generate index of neighboring tile
 					var neighborIndex = Math.floor(Math.random() * 259);
+					//check that we can add it
 					output = nextChecker(imgarr, imgarrKeys, direction, neighborIndex, opposite, themap);
 				}
-				var neighbor = imgarrKeys[neighborIndex];
-				neighborhood[direction] = neighbor;
+				var neighbor = imgarrKeys[neighborIndex]; //convert index to vastNum tile
+				neighborhood[direction] = neighbor; //add this direction:tile pair to the dictionary
 			}
-			themap[directionToVastNum] = neighborhood;
+			themap[directionToVastNum] = neighborhood; //add the list of neighbor tiles to the map at the key[vastNum]
 		}
-		themap[directionToVastNum][opposite[direction]] = currentVastNum; //overwrite whatever is in there with vastNum for directionwe're coming from
+		themap[directionToVastNum][opposite[direction]] = currentVastNum; //overwrite whatever is in there with vastNum for direction we're coming from
 	}
 	var diff = Object.keys(themap).filter(function(x) { return a.indexOf(x) < 0});
 }
