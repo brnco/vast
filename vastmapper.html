@@ -108,9 +108,6 @@ vastNum is eligible if:
 function nextChecker(sourceImagesObj, vastNumKey, direction, neighborIndex, opposite_direction, theMap){
 	var thisVastsNeighborhood = theMap[vastNumKey];
 	var thisVast = vast(neighborIndex);
-	//console.log(vastNumKey);
-	//console.log(thisVastsNeighborhood);
-	//console.log(thisVast);
 	for (var vnk in theMap){
 		for (var thisVastsNeighborDirection in thisVastsNeighborhood){
 			var thisVastsNeighbor = thisVastsNeighborhood[thisVastsNeighborDirection];
@@ -142,21 +139,37 @@ function setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap){
 		var direction = sourceImagesObj[startImg][directionIndexFromStartImg];
 		var output = false;
 		while (output == false){
-			//console.log(neighborIndex);
-			//console.log(imgarrKeys[neighborIndex]);
-			//console.log(Object.keys(themap).indexOf(imgarrKeys[neighborIndex]));
-			//console.log(themap);
 			var neighborIndex = Math.floor(Math.random() * 247) + 12;
 			output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, theMap);
-			//console.log(output);
 		}
 		var thisVast = vast(neighborIndex);
 		var neighbor = thisVast;
-		//console.log(neighbor);
 		neighborhood[direction] = neighbor;
-		//console.log(neighborhood)
 	};
 	return neighborhood;
+}
+
+//function makeNeighbor(sourceImagesObj,currentVastNum,DIR,oppositeDirection,directionFromCurrentVastNum,theMap){
+function makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHome,neighborAtDirectionFromHome,theMap){
+	if (DIR == oppositeDirection[directionFromHome]){
+		var neighbor = home;
+		//alert("eyyy");
+	} else {
+		var output = false; //init
+		count = 0; //init
+		while ((output == false) && (count < 100)){
+			var neighborNumber = Math.floor(Math.random() * 247) + 12;
+			output = nextChecker(sourceImagesObj,neighborAtDirectionFromHome, DIR, neighborNumber, oppositeDirection, theMap);
+			count = count + 1;
+		}
+		if (count < 99){
+			count = 0;
+			var neighbor = vast(neighborNumber); //convert index to vastNum tile
+		} else {
+			var neighbor = null;
+		}
+	}
+	return neighbor;
 }
 
 //set the startObj here
@@ -180,44 +193,33 @@ for each vastNum in the diff
 	for each direction available in the vastNum:
 		
 */
-endmapgeneration:
-while (typeof diff[0] !== 'undefined' && diff[0] !== null){
+mapgeneration:
+while (diff[0]){
 	a = Object.keys(theMap); //assign array to the tiles currently in
 	for (vnIndex in diff){ //for vastNumberIndex in list of images that were added
-		var currentVastNum = diff[vnIndex]; //vast number for item in themap we'd like to loop thru
-		for (var directionFromCurrentVastNum in theMap[currentVastNum]){ //for directions available in current tile
-			var vastNumAtDirection = theMap[currentVastNum][directionFromCurrentVastNum];
-			directionsOfCurrentVastNum = sourceImagesObj[currentVastNum]; //the string "nsew" of directions available to tile
-			var neighborhood = {}; //init
-			for (directionIndex in sourceImagesObj[vastNumAtDirection]){ //loop thru directions available for this tile
-				var directionsOfToVastNum = sourceImagesObj[vastNumAtDirection]; //string nsew for directions available in this tile
-				var DIR = directionsOfToVastNum[directionIndex]; //the direction we're assigning right now
-				if (DIR == oppositeDirection[directionFromCurrentVastNum]){
-					var neighbor = currentVastNum;
-				} else {
-					var output = false; //init
-					count = 0; //init
-					while ((output == false) && (count < 100)){
-						var neighborNumber = Math.floor(Math.random() * 247) + 12;
-						output = nextChecker(sourceImagesObj,vastNumAtDirection, DIR, neighborNumber, oppositeDirection, theMap);
-						count = count + 1;
-					}
-					if (count < 99){
-						count = 0;
-						var neighbor = vast(neighborNumber); //convert index to vastNum tile
-					} else {
+		var home = diff[vnIndex]; //vast number for item in themap we'd like to loop thru. home has a neighborhood already
+		for (var directionFromHome in theMap[home]){ //for directions available in current tile
+			var neighborAtDirectionFromHome = theMap[home][directionFromHome]; //the vastNum at a direction for the tile in the diff
+			console.log(neighborAtDirectionFromHome);
+			if (theMap[neighborAtDirectionFromHome]){ continue; } else {
+				//directionsOfCurrentVastNum = sourceImagesObj[home]; //the string "nsew" of directions available to tile
+				var neighborhood = {}; //init
+				var directionsAvailableToNeighbor = sourceImagesObj[neighborAtDirectionFromHome]; //string nsew for directions available in this tile
+				for (directionIndex in directionsAvailableToNeighbor){ //loop thru directions available for this tile, directionIndex = "1""2""3""4" for "nsew"
+					var DIR = directionsAvailableToNeighbor[directionIndex]; //the direction we're assigning right now, "n" = "nsew"[0]
+					neighbor = makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHome,neighborAtDirectionFromHome,theMap);
+					if (!neighbor){
 						diff[0] == null;
-						break endmapgeneration;
+						break mapgeneration;	 
 					}
-					 
-				}
-				neighborhood[DIR] = neighbor; //add this direction:tile pair to the dictionary
-				console.log(neighborhood);
-			}	
-			theMap[vastNumAtDirection] = neighborhood; //add the list of neighbor tiles to the map at the key[vastNum]
+					neighborhood[DIR] = neighbor; //add this direction:tile pair to the dictionary
+					
+					console.log(neighborhood);
+				}	
+				theMap[neighborAtDirectionFromHome] = neighborhood; //add the list of neighbor tiles to the map at the key[vastNum]
+			}
+			//theMap[neighborAtDirectionFromHome][oppositeDirection[directionFromCurrentVastNum]] = currentVastNum; //overwrite whatever is in there with		
 		}
-		
-		theMap[vastNumAtDirection][oppositeDirection[directionFromCurrentVastNum]] = currentVastNum; //overwrite whatever is in there with		
 	}
 	var diff = Object.keys(theMap).filter(function(x) { return a.indexOf(x) < 0});
 }
