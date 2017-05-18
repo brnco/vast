@@ -59,8 +59,8 @@ setImg(startImg);
 
 //console.log("image path " + imgpath);
 $('#plane').css({
-	height:"720px",
-	width:"1080px",
+	height:"300px",
+	width:"300px",
 	backgroundRepeat: "no-repeat",
 	backgroundSize:"cover"
 	//backgroundSize:"320px 190px"
@@ -105,44 +105,36 @@ vastNum is eligible if:
 
 */
 
-function nextChecker(sourceImagesObj, direction, neighborIndex, opposite_direction, theMap){
+function nextChecker(sourceImagesObj, vastNumKey, direction, neighborIndex, opposite_direction, theMap){
 	var thisVastsNeighborhood = theMap[vastNumKey];
 	var thisVast = vast(neighborIndex);
-	for (var vastNumKey in theMap){
-		//console.log("1 " + vastNumKey);
-		//console.log("2 ");
-		//console.log(thisVastsNeighborhood)
+	//console.log(vastNumKey);
+	//console.log(thisVastsNeighborhood);
+	//console.log(thisVast);
+	for (var vnk in theMap){
 		for (var thisVastsNeighborDirection in thisVastsNeighborhood){
 			var thisVastsNeighbor = thisVastsNeighborhood[thisVastsNeighborDirection];
-			//console.log("3 " + thisVastsNeighborDirection);
-			//console.log("thisVastsNeighbor " + thisVastsNeighborhood[thisVastsNeighborDirection]);
-			//console.log("porposedNewNeighbor " + thisVastsNeighborDirection + ":" + imgObjKeys[neighborIndex]);
-			//alert("hey check the log");
 			if (thisVastsNeighbor == thisVast){
-				//console.log("thisVastsNeighbor == imgObjKeys[neighborIndex]");
 				return false;
 			}
 		}
 	}
-	console.log(thisVast)
-	console.log(sourceImagesObj[thisVast]);
-	console.log(sourceImagesObj)
 	if (thisVast == startImg){
 		return false;
 	} else if (sourceImagesObj[thisVast].indexOf(oppositeDirection[direction])<0){
-		//console.log("this obj can't go that direction")
 		return false;
 	} else {
-		//console.log("this one is good " + thisVastsNeighbor)
 		return true;
 	}
 }
 
 
 /*
+
 setStartObj
 
 creates an initial {"n":"vast123","s":"vast45"} object
+
 */
 function setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap){
 	//build a neighborhood for the startImg
@@ -155,7 +147,7 @@ function setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap){
 			//console.log(Object.keys(themap).indexOf(imgarrKeys[neighborIndex]));
 			//console.log(themap);
 			var neighborIndex = Math.floor(Math.random() * 247) + 12;
-			output = nextChecker(sourceImagesObj, direction, neighborIndex, oppositeDirection, theMap);
+			output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, theMap);
 			//console.log(output);
 		}
 		var thisVast = vast(neighborIndex);
@@ -194,60 +186,38 @@ while (typeof diff[0] !== 'undefined' && diff[0] !== null){
 	for (vnIndex in diff){ //for vastNumberIndex in list of images that were added
 		var currentVastNum = diff[vnIndex]; //vast number for item in themap we'd like to loop thru
 		for (var directionFromCurrentVastNum in theMap[currentVastNum]){ //for directions available in current tile
-			//console.log("curentVastNum " + currentVastNum)
-			//console.log(directionFromCurrentVastNum)
 			var vastNumAtDirection = theMap[currentVastNum][directionFromCurrentVastNum];
-			//console.log(newVastNum);
-			//directionsOfCurrentVastNum = sourceImagesObj[currentVastNum]; //the vastNum at the direction we're coming from
-			//console.log(typeof(diff[0]))
-			//directionToVastNum = directionsOfCurrentVastNum[directionFromCurrentVastNum]; //the vast number located at the direciton we're currently assigning
-			//var neighborhood = {}; //init
+			directionsOfCurrentVastNum = sourceImagesObj[currentVastNum]; //the string "nsew" of directions available to tile
+			var neighborhood = {}; //init
 			for (directionIndex in sourceImagesObj[vastNumAtDirection]){ //loop thru directions available for this tile
 				var directionsOfToVastNum = sourceImagesObj[vastNumAtDirection]; //string nsew for directions available in this tile
 				var DIR = directionsOfToVastNum[directionIndex]; //the direction we're assigning right now
-				//console.log("directionToVastNum " + directionToVastNum)
-				//console.log("DIR " + DIR)
 				if (DIR == oppositeDirection[directionFromCurrentVastNum]){
 					var neighbor = currentVastNum;
 				} else {
 					var output = false; //init
 					count = 0; //init
 					while ((output == false) && (count < 100)){
-						//generate index of neighboring tile
-						var neighborIndex = Math.floor(Math.random() * 247) + 12;
-						//check that we can add it
-						/*
-						next checker has to be updated here, objects can assign themselves as the directionToVastNum
-						and also they can use vastNums already in the map
-						*/
-						output = nextChecker(sourceImagesObj, DIR, neighborIndex, oppositeDirection, theMap);
-
-						//alert("eh");
+						var neighborNumber = Math.floor(Math.random() * 247) + 12;
+						output = nextChecker(sourceImagesObj,vastNumAtDirection, DIR, neighborNumber, oppositeDirection, theMap);
 						count = count + 1;
-						//console.log(count);
 					}
 					if (count < 99){
 						count = 0;
-						var neighbor = vast(neighborIndex); //convert index to vastNum tile
-						neighborhood[DIR] = neighbor; //add this direction:tile pair to the dictionary
-						//neighborhood[directionToVastNum][opposite_direction[DIR]] = currentVastNum;
-						//vastNum for direction we're coming from
-						//console.log("the map");
-						//console.log(themap);
-						//console.log("");
+						var neighbor = vast(neighborNumber); //convert index to vastNum tile
 					} else {
 						diff[0] == null;
 						break endmapgeneration;
 					}
+					 
 				}
-				//console.log(currentVastNum);
-				//console.log(neighbor);
-				console.log()
 				neighborhood[DIR] = neighbor; //add this direction:tile pair to the dictionary
-				theMap[vastNumAtDirection] = neighborhood; //add the list of neighbor tiles to the map at the key[vastNum]
-				theMap[vastNumAtDirection][oppositeDirection[directionFromCurrentVastNum]] = currentVastNum; //overwrite whatever is in there with 
+				console.log(neighborhood);
 			}	
-		}	
+			theMap[vastNumAtDirection] = neighborhood; //add the list of neighbor tiles to the map at the key[vastNum]
+		}
+		
+		theMap[vastNumAtDirection][oppositeDirection[directionFromCurrentVastNum]] = currentVastNum; //overwrite whatever is in there with		
 	}
 	var diff = Object.keys(theMap).filter(function(x) { return a.indexOf(x) < 0});
 }
@@ -270,16 +240,17 @@ function loadButtons(){
 	var result = myRe.exec(currentImg); //run that pattern against the url
 	var vastImg = result[0];
 	var vastImgDirs = sourceImagesObj[vastImg];
-	if (vastImgDirs.includes("n") && theMap[vastImg]["n"] !== "undefined"){
+	//console.log(vastImgDirs);
+	if (vastImgDirs.includes("n") && theMap[vastImg]["n"] != null){
 		$('#north').css('visibility','visible');
 	}
-	if (vastImgDirs.includes("s") && theMap[vastImg]["s"] !== "undefined"){
+	if (vastImgDirs.includes("s") && theMap[vastImg]["s"] != null){
 		$('#south').css('visibility','visible');
 	}
-	if (vastImgDirs.includes("e") && theMap[vastImg]["e"] !== "undefined"){
+	if (vastImgDirs.includes("e") && theMap[vastImg]["e"] != null){
 		$('#east').css('visibility','visible');
 	}
-	if (vastImgDirs.includes("w") && theMap[vastImg]["w"] !== "undefined"){
+	if (vastImgDirs.includes("w") && theMap[vastImg]["w"] != null){
 		$('#west').css('visibility','visible');
 	}
 }
@@ -298,12 +269,15 @@ as delineated by the map
 function loadImg(directionTo){
 	directionFrom = oppositeDirection[directionTo];
 	var currentImg = $('#plane').children("img").prop('src');
+	//console.log(currentImg);
 	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
 	var result = myRe.exec(currentImg); //run that pattern against the url
 	var currentImg = result[0];
-	newImg = theMap[currentImg][directionTo];
-	setImg(newImg);
-	setTimeout(loadButtons(),100)
+	if (theMap[currentImg] != null){
+		newImg = theMap[currentImg][directionTo];
+		setImg(newImg);
+		setTimeout(loadButtons(),100)
+	}
 }
 $(document).ready(function(){
 	setTimeout(function(){
