@@ -188,17 +188,25 @@ function loadButtons(){
 	var vastImg = result[0]; //get first index of object returned by regex = vast123
 	var vastImgDirsObj = Vast.theMap[vastImg]; //get the vastNum object from theMap vast123{"n":"vast124","s":"vast125"}
 	vastImgDirs = Object.keys(vastImgDirsObj); //get just a list of the directions ["n","s","e","w"]
-	if (vastImgDirs.includes("n") && Vast.theMap[vastImg]["n"] != null){
+	if (Vast.theMap[vastImg]["n"]){
 		$('#north').css('visibility','visible');
+	} else {
+		$('#north').css('visibility','hidden');
 	}
-	if (vastImgDirs.includes("s") && Vast.theMap[vastImg]["s"] != null){
+	if (Vast.theMap[vastImg]["s"]){
 		$('#south').css('visibility','visible');
+	} else {
+		$('#south').css('visibility','hidden');
 	}
-	if (vastImgDirs.includes("e") && Vast.theMap[vastImg]["e"] != null){
+	if (Vast.theMap[vastImg]["e"]){
 		$('#east').css('visibility','visible');
+	} else {
+		$('#east').css('visibility','hidden');
 	}
-	if (vastImgDirs.includes("w") && Vast.theMap[vastImg]["w"] != null){
+	if (Vast.theMap[vastImg]["w"]){
 		$('#west').css('visibility','visible');
+	} else {
+		$('#west').css('visibility','hidden');
 	}
 }
 
