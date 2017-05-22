@@ -41,7 +41,7 @@ function setImg(img){
 	var image = new Image();
 	image.src = imgpath;
 	image.onload = function() {
-		$('#plane').empty().append(image);
+		$('#plane').empty().prepend(image);
 	}
 }
 
@@ -230,7 +230,9 @@ function loadImg(directionTo){
 	if (Vast.theMap[currentImg] != null){
 		newImg = Vast.theMap[currentImg][directionTo];
 		setImg(newImg);
-		setTimeout(loadButtons(),100)
+		setTimeout(function(){
+			loadButtons();
+		},1000);	
 	}
 }
 
@@ -275,12 +277,13 @@ $(document).ready(function(){
 	setImg(startImg);
 
 	//assign init image to plane
+	//backgroundRepeat: "no-repeat",
+	//backgroundSize:"cover"
+	//backgroundSize:"320px 190px"
 	$('#plane').css({
-		height:"300px",
-		width:"300px",
-		backgroundRepeat: "no-repeat",
-		backgroundSize:"cover"
-		//backgroundSize:"320px 190px"
+		height:"500px",
+		width:"500px",
+		objectFit:"fill"
 	});
 	
 	//init map stuff
