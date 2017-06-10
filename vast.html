@@ -1,10 +1,55 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-</head>
+    <head>
+        <meta charset="UTF-8" />
+        <script src="js/phaser.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    </head>
+<style>
+body{
+margin:0 auto;
+}
+#planeColorFader{
+position:absolute;
+height:720px;
+width:1280px;
+left:0;
+top:0;
+background-color:black;
+}
+#plane{
+position:absolute;
+top:0;
+z-index:1;
+height:720px;
+width:1280px;
+display: flex;
+justify-content: center;
+align-items: center;
+overflow: hidden;
+image-rendering:optimizeSpeed;          	/* Legal fallback */
+image-rendering:-moz-crisp-edges;          /* Firefox        */
+image-rendering:-o-crisp-edges;            /* Opera          */
+image-rendering:-webkit-optimize-contrast; /* Safari         */
+image-rendering:optimize-contrast;         /* CSS3 Proposed  */
+image-rendering:crisp-edges;               /* CSS4 Proposed  */
+image-rendering:pixelated;                 /* CSS4 Proposed  */
+-ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
+}
+#plane img {
+flex-shrink: 0;
+min-width: 100%;
+min-height: 100%;
+}
+
+#gameDiv{
+position:absolute;
+z-index:2;
+}
+
+</style>
 <body>
+<div id="planeColorFader"></div>
+<div id="gameDiv"></div>
 <div id="plane">
 </div>
 <input id="north" type="button" value="north" style="visibility:hidden;" onclick="loadImg('n')"/>
@@ -12,62 +57,47 @@
 <input id="east" type="button" value="east" style="visibility:hidden;" onclick="loadImg('e')"/>
 <input id="west" type="button" value="west" style="visibility:hidden;" onclick="loadImg('w')"/>
 <script>
-
-
-
-/*
-
-vast
-
-*/
-function vast(number){
-	return "vast" + number.toString();
-}
-
-
-
-/*
-
-setImage
-
-puts a new image on the page
-//$('#plane').css("background-image","url(" + imgpath+ ")");
-//$('#plane').load(imgpath + ' #plane');
-
-*/
-function setImg(img){
-	var rootContext = "/vastmapper"; //path context for generating paths to the images
-	var imgpath = rootContext + '/images/' + img + '.png';
-	var image = new Image();
-	image.src = imgpath;
-	image.onload = function() {
-		$('#plane').empty().prepend(image);
+	/*
+	vast
+	*/
+	function vast(number){
+		return "vast" + number.toString();
 	}
-}
+	/*
+	setImage
 
-
-/*
-
-nextChecker
-
-takes input vastNum and figues out if it's eligible to add to the neighborhood
-vastNum is eligible if:
-1) it is not already assigned to the directionTo another vastNumber in themap
-2) not the first tile
-3) that it can link back to its potential neighbor
-
-*/
-function nextChecker(sourceImagesObj, vastNumKey, direction, neighborIndex, oppositeDirection, theMap){
-	var thisVastsNeighborhood = theMap[vastNumKey]; //get neighborhood for current tile
-	var thisVast = vast(neighborIndex); //convert supplied random 123 number to vast123
-	for (var vnk in theMap){ //loop thru the vast number keys (vnk = "vast123","vast124",etc) in theMap
-		for (var thisVastsNeighborDirection in thisVastsNeighborhood){ //loop thru keys "n","s","e","w" available to current tile
-			var thisVastsNeighbor = thisVastsNeighborhood[thisVastsNeighborDirection]; //get the neighbor at that direction
-			if (thisVastsNeighbor == thisVast){ //if neighbor at direction == supplied random vastNum
-				return false;
-			}
+	puts a new image on the page
+	//$('#plane').css("background-image","url(" + imgpath+ ")");
+	//$('#plane').load(imgpath + ' #plane');
+	*/
+	function setImg(img){
+		var rootContext = "/vast"; //path context for generating paths to the images
+		var imgpath = rootContext + '/images/' + img + '.png';
+		var image = new Image();
+		image.src = imgpath;
+		image.onload = function() {
+			$('#plane').empty().append(image);
 		}
 	}
+	/*
+	nextChecker
+	takes input vastNum and figues out if it's eligible to add to the neighborhood
+	vastNum is eligible if:
+	1) it is not already assigned to the directionTo another vastNumber in themap
+	2) not the first tile
+	3) that it can link back to its potential neighbor
+	*/
+	function nextChecker(sourceImagesObj, vastNumKey, direction, neighborIndex, oppositeDirection, theMap){
+		var thisVastsNeighborhood = theMap[vastNumKey]; //get neighborhood for current tile
+		var thisVast = vast(neighborIndex); //convert supplied random 123 number to vast123
+		for (var vnk in theMap){ //loop thru the vast number keys (vnk = "vast123","vast124",etc) in theMap
+			for (var thisVastsNeighborDirection in thisVastsNeighborhood){ //loop thru keys "n","s","e","w" available to current tile
+				var thisVastsNeighbor = thisVastsNeighborhood[thisVastsNeighborDirection]; //get the neighbor at that direction
+				if (thisVastsNeighbor == thisVast){ //if neighbor at direction == supplied random vastNum
+					return false;
+				}
+			}
+		}
 	if (thisVast == vastNumKey){ //if it's the same random number as the current tile
 		return false;
 	} else if (sourceImagesObj[thisVast].indexOf(oppositeDirection[direction])<0){ //if we can't link this tile back to the previous tile
@@ -75,6 +105,7 @@ function nextChecker(sourceImagesObj, vastNumKey, direction, neighborIndex, oppo
 	} else {
 		return true;
 	}
+<<<<<<< HEAD
 }
 
 
@@ -99,21 +130,35 @@ function setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap){
 		};
 		var neighbor = vast(neighborIndex);
 		neighborhood[direction] = neighbor;
+=======
+>>>>>>> ffd70ee6389d98e3df7a9aab3eb6ee50e1b1419d
 	}
-	return neighborhood;
-}
+	/*
+	setStartObj
+	
+	creates an initial {"n":"vast123","s":"vast45"} object
+	see makeNeighbor for comments
+	*/
+	function setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap){
+		var neighborhood = {}; //init
+		for (var directionIndexFromStartImg in sourceImagesObj[startImg]){
+			var direction = sourceImagesObj[startImg][directionIndexFromStartImg];
+			var output = false;
+			while (output == false){
+				var neighborIndex = Math.floor(Math.random() * 247) + 12;
+				output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, theMap);
+			};
+			var neighbor = vast(neighborIndex);
+			neighborhood[direction] = neighbor;
+		}
+		return neighborhood;
+	}
+	/*
+	makeNeighbor
 
-
-
-
-/*
-
-makeNeighbor
-
-returns a vastNum for supplied direction based on rules
-
-*/
-function makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHome,neighborAtDirectionFromHome,theMap){
+	returns a vastNum for supplied direction based on rules
+	*/
+	function makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHome,neighborAtDirectionFromHome,theMap){
 	if (DIR == oppositeDirection[directionFromHome]){ //if the direction we're assigning a neighbor to is the opposite of the direction we're coming from
 		var neighbor = home; //links the new neighbor to the old neighbor
 	} else {
@@ -132,24 +177,18 @@ function makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHo
 		}
 	}
 	return neighbor;
-}
+	}
+	/*
+	addNeighborhoodsToTheMap
 
-
-
-
-/*
-
-addNeighborhoodsToTheMap
-
-loops thru diff, grips neighbors at each directions
-for each neighbor at each direction
-loops through directions available to neighbor
-generates new neighbor at that direction
-links old neighbor back at the opposite direction
-assigns neighborhood to themap
-
-*/
-function addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection){
+	loops thru diff, grips neighbors at each directions
+	for each neighbor at each direction
+	loops through directions available to neighbor
+	generates new neighbor at that direction
+	links old neighbor back at the opposite direction
+	assigns neighborhood to themap
+	*/
+	function addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection){
 	for (vnIndex in diff){ //for vastNumberIndex in list of images that were added
 		var home = diff[vnIndex]; //vast number for item in themap we'd like to loop thru. home has a neighborhood already
 		for (var directionFromHome in theMap[home]){ //for directions available in current tile
@@ -170,18 +209,12 @@ function addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection)
 		}
 	}
 	return theMap
-}
-
-
-
-
-/*
-
-loads the bottons with every new image
-toggles button visibility based on the image's available directions in the map
-
-*/
-function loadButtons(){
+	}
+	/*
+	loads the bottons with every new image
+	toggles button visibility based on the image's available directions in the map
+	*/
+	function loadButtons(){
 	var currentImg = $('#plane').children("img").prop('src');
 	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
 	var result = myRe.exec(currentImg); //run that pattern against the url
@@ -190,6 +223,7 @@ function loadButtons(){
 	vastImgDirs = Object.keys(vastImgDirsObj); //get just a list of the directions ["n","s","e","w"]
 	if (Vast.theMap[vastImg]["n"]){
 		$('#north').css('visibility','visible');
+		
 	} else {
 		$('#north').css('visibility','hidden');
 	}
@@ -208,20 +242,16 @@ function loadButtons(){
 	} else {
 		$('#west').css('visibility','hidden');
 	}
-}
+	}
+	/*
+	loadImg
 
-
-/*
-
-loadImg
-
-loads a new image to #plane on input of a button
-new image loaded corresponds to direction pressed by
-button, "north" "south" "east" "west"
-as delineated by the map
-
-*/
-function loadImg(directionTo){
+	loads a new image to #plane on input of a button
+	new image loaded corresponds to direction pressed by
+	button, "north" "south" "east" "west"
+	as delineated by the map
+	*/
+	function loadImg(directionTo){
 	directionFrom = Vast.oppositeDirection[directionTo];
 	var currentImg = $('#plane').children("img").prop('src'); //img that is currently displayed
 	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
@@ -232,14 +262,13 @@ function loadImg(directionTo){
 		setImg(newImg);
 		setTimeout(function(){
 			loadButtons();
-		},1000);	
+		},100)
 	}
-}
+	}
+	//init namespace object to store global theMap and oppositeDirection objects
+	var Vast = {};
 
-//init namespace object to store global theMap and oppositeDirection objects
-var Vast = {};
-
-$(document).ready(function(){
+	$(document).ready(function(){
 	/*
 	init
 	the array has key values for the 
@@ -277,15 +306,30 @@ $(document).ready(function(){
 	setImg(startImg);
 
 	//assign init image to plane
-	//backgroundRepeat: "no-repeat",
-	//backgroundSize:"cover"
-	//backgroundSize:"320px 190px"
-	$('#plane').css({
-		height:"500px",
-		width:"500px",
-		objectFit:"fill"
+	//$('#plane').css({
+	//	height:"300px",
+	//	width:"300px",
+	//	backgroundRepeat: "no-repeat",
+	//	backgroundSize:"cover",
+	//	backgroundColor:"blue"
+		//backgroundSize:"320px 190px"
+	//});
+	$('#north').css({
+		top:"800px",
+		position:"relative"
 	});
-	
+		$('#south').css({
+		top:"800px",
+		position:"relative"
+	});
+		$('#east').css({
+		top:"800px",
+		position:"relative"
+	});
+		$('#west').css({
+		top:"800px",
+		position:"relative"
+	});
 	//init map stuff
 	var theMap = {};
 	var a = Object.keys(theMap);
@@ -294,8 +338,6 @@ $(document).ready(function(){
 	theMap[startImg] = neighborhood;
 	var diff = Object.keys(theMap)
 	console.log(theMap);
-	
-	
 	/*
 	fill the map
 	starts with the diff of the previous map and the current map
@@ -312,9 +354,247 @@ $(document).ready(function(){
 	
 	//breathe, then load the buttons
 	setTimeout(function(){
-		loadButtons();
+	loadButtons();
 	},2000);
-});	
+	});	
+	
+	
+//ENTER THE PHAAASER
+	
+//Define the buttons
+	var NorthButton = document.getElementById('north');
+	var EastButton = document.getElementById('east');
+	var WestButton = document.getElementById('west');
+	var SouthButton = document.getElementById('south');
+	
+//Game
+	var game = new Phaser.Game(1280, 720, Phaser.CANVAS, 'gameDiv', { preload: preload, create: create, update: update}, true);
+	function preload(){
+	game.load.spritesheet("jenRun","rooms/jennRun.png",32,61);
+	game.load.image("RightBorder","rooms/RightBorder.png");
+	game.load.image("TopBorder","rooms/TopBorder.png");
+	}
+	function create(){
+	game.physics.startSystem(Phaser.Physics.ARCADE);	
+	game.world.setBounds(0,0, 1280,720);
+	//jenn = game.add.sprite(vast.position.x + Math.random() * game.world.width-20 ,vast.position.y+200 + Math.random() * 150,"jenRun");
+	jenn = game.add.sprite(game.world.centerX,game.world.centerY+100,"jenRun");
+	jenn.smoothed=false;
+	jenn.scale.x=4;
+	jenn.scale.y=4;
+	jenn.anchor.setTo (0.5,0.5);
+	jenn.inputEnabled=true;
+	jenn.enableBody=true;
+	//jenn.outOfBoundsKill=true; //dont know if this is working
+	game.physics.arcade.enable(jenn);
+	/* on input down over Jenn, move Jenn
+	jenn.events.onInputDown.add(function jennRunRi(){
+	jenn.animations.add("runRi",[1,2,3,4,5,6],10,true);
+	jenn.animations.play("runRi");
+	jenn.body.velocity.x=300;
+	}),this;
+	*/
+	
+//Borders
+	
+	RightBorder = game.add.sprite(1400,0,"RightBorder"); //offscreen
+	game.physics.arcade.enable(RightBorder);
+	RightBorder.inputEnabled=true;
+	RightBorder.enableBody=true;
+	RightBorder.body.immovable = true;
+	RightBorder.visible =false;
+	
+	LeftBorder = game.add.sprite(-120,0,"RightBorder");
+	game.physics.arcade.enable(LeftBorder);
+	LeftBorder.inputEnabled=true;
+	LeftBorder.enableBody=true;
+	LeftBorder.body.immovable = true;
+	LeftBorder.visible =false;
+	
+	TopBorder = game.add.sprite(0,140, "TopBorder"); //-200 to make her appear to go offscreen before transition
+	game.physics.arcade.enable(TopBorder);
+	TopBorder.inputEnabled=true;
+	TopBorder.enableBody=true;
+	TopBorder.body.immovable = true;
+	TopBorder.visible=false;
+	
+	BottomBorder = game.add.sprite(0,750,"TopBorder");
+	game.physics.arcade.enable(BottomBorder);
+	BottomBorder.inputEnabled=true;
+	BottomBorder.enableBody=true;
+	BottomBorder.body.immovable = true;
+	
+//Move Jenn
+
+//BUTTON FUNCTION MOVE ON CLICK
+
+//EAST
+	EastButton.onclick = function moveJennEast(){ 
+	//deactivate all other buttons once one is clicked
+	NorthButton.disabled=true; //   5/22 Using javascript method. Phaser's .inputEnabled does not work (?)
+	SouthButton.disabled=true;
+	EastButton.disabled=true;
+	WestButton.disabled=true;
+	jenn.animations.add("runRi",[1,2,3,4,5,6],10,true);
+	jenn.animations.play("runRi");
+	jenn.body.velocity.x=300; //  5/20   NEED TO CHANGE TO TWEEN?
+	$("#plane").fadeOut(1500);
+	//game.add.tween(vast).to( { alpha:0 }, 1000, Phaser.Easing.Linear.None, true);
+	//game.camera.fade('#0000ff');
+	};
+	
+//WEST
+	WestButton.onclick = function moveJennWest(){
+	NorthButton.disabled=true;
+	SouthButton.disabled=true;
+	EastButton.disabled=true;
+	WestButton.disabled=true;
+	jenn.animations.add("runWe",[8,9,10,11,12,13],10,true);
+	jenn.animations.play("runWe");
+	jenn.body.velocity.x=-300;
+	$("#plane").fadeOut(1500);
+	//game.add.tween(vast).to( { alpha:0 }, 1000, Phaser.Easing.Linear.None, true);
+	};
+	
+//NORTH
+	NorthButton.onclick = function moveJennNorth(){
+	NorthButton.disabled=true;
+	SouthButton.disabled=true;
+	EastButton.disabled=true;
+	WestButton.disabled=true;
+	jenn.animations.add("runNo",[14,15,16,17,18,19,20,21,22,23,24,25,26,29,30,31,32,33,34,35,60,61,62,63,64,65,66,67,68,69],10,true);
+	jenn.animations.play("runNo");
+	jenn.body.velocity.y=-100;
+	$("#plane").fadeOut(1500);
+	}
+	//game.add.tween(vast).to( { alpha:0 }, 1000, Phaser.Easing.Linear.None, true);
+
+//SOUTH
+	SouthButton.onclick = function moveJennSouth(){
+	NorthButton.disabled=true;
+	SouthButton.disabled=true;
+	EastButton.disabled=true;
+	WestButton.disabled=true;
+	jenn.scale.x=5.7;
+	jenn.scale.y=5.7;
+	jenn.animations.add("runSo",[36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56],10,true);
+	jenn.animations.play("runSo"); 
+	jenn.body.velocity.y=50;
+	$("#plane").fadeOut(1500);
+	}
+	
+	//5/22 THIS CONTINUE SOUTH WAS TO FIX SCALING. NEED TO FIND NEW WAY 
+	
+	//jenn.events.onAnimationComplete.add(continueS, this);
+	//function continueS(){
+	//jenn.animations.add("runSoCon",[50,51,52,53,54,55],10,true);//continue run anim but don't grow larger
+	//jenn.animations.play("runSoCon");
+	//jenn.body.velocity.y=50;
+	//}};
+
+	}
+	function update(){
+//ON COLLIDE PLAY FUNCTION
+	game.physics.arcade.collide(jenn, RightBorder, playEast, null, this);
+	game.physics.arcade.collide(jenn, LeftBorder, playWest, null, this);
+	game.physics.arcade.collide(jenn, TopBorder, playNorth, null, this);
+	game.physics.arcade.collide(jenn, BottomBorder, playSouth, null, this);
+	}
+//LOAD EAST AND ENTER W	
+	function playEast(){
+	jenn.visible=false;
+	loadImg("e");
+	$("#plane").fadeIn(1500);
+	game.time.events.add(2000, enterW, this);}
+	function enterW(){
+	jenn.visible=true;
+	jenn.scale.x=4;
+	jenn.scale.y=4;
+	jenn.x =100;
+	jenn.y =game.world.centerY + 100;
+	jenn.animations.play("runRi");
+	enterWest = game.add.tween(jenn).to({x:game.world.centerX-200, y:game.world.centerY+100},1500,Phaser.Easing.Linear.None, true);
+	enterWest.onComplete.addOnce(standStill,this);}
+	function standStill(){
+	jenn.animations.stop();
+	//look into transition anim from run to stop for jenn
+	jenn.frame =0;
+	NorthButton.disabled=false; 
+	SouthButton.disabled=false;
+	EastButton.disabled=false;
+	WestButton.disabled=false;
+	}
+//LOAD W AND ENTER E	
+	function playWest(){
+	jenn.visible=false;
+	loadImg("w");
+	$("#plane").fadeIn(1500);
+	game.time.events.add(2000, enterE, this);}
+	function enterE(){
+	jenn.visible=true;
+	jenn.scale.x=4;
+	jenn.scale.y=4;
+	jenn.x =1280;
+	jenn.y =game.world.centerY + 100;
+	jenn.animations.play("runWe");
+	enterEast = game.add.tween(jenn).to({x:game.world.centerX+200, y:game.world.centerY+100},1500,Phaser.Easing.Linear.None, true);
+	enterEast.onComplete.addOnce(standStill2,this);}
+	function standStill2(){
+	jenn.frame = 7;
+	jenn.animations.stop();
+	NorthButton.disabled=false; 
+	SouthButton.disabled=false;
+	EastButton.disabled=false;
+	WestButton.disabled=false;
+	}
+//LOAD N AND ENTER S 	
+	function playNorth(){
+	jenn.visible=false;
+	loadImg("n");
+	$("#plane").fadeIn(1500);
+	game.time.events.add(2000, enterS, this);}
+	function enterS(){
+	jenn.visible=true;
+	jenn.scale.x=4;					//	5/22 will have to fix scaling issue/re-do animations 
+	jenn.scale.y=4;
+	jenn.x = game.world.centerX;
+	jenn.y =600;
+	jenn.animations.play("runNo");
+	enterSouth = game.add.tween(jenn).to({x:game.world.centerX, y:game.world.centerY+100},1500,Phaser.Easing.Linear.None, true);
+	enterSouth.onComplete.addOnce(standStill3,this);}
+	function standStill3(){
+	jenn.frame = 58;
+	jenn.animations.stop();
+	NorthButton.disabled=false; 
+	SouthButton.disabled=false;
+	EastButton.disabled=false;
+	WestButton.disabled=false;
+	}
+//LOAD S AND ENTER N
+	function playSouth(){
+	jenn.visible=false;
+	loadImg("s");
+	$("#plane").fadeIn(1500);
+	game.time.events.add(2000, enterN, this);}
+	function enterN(){
+	jenn.visible=true;
+	jenn.scale.x=4;					//	5/22 will have to fix scaling issue/re-do animations 
+	jenn.scale.y=4;
+	jenn.x = game.world.centerX;
+	jenn.y =300;
+	jenn.animations.play("runSo");
+	enterNorth = game.add.tween(jenn).to({x:game.world.centerX, y:game.world.centerY+100},1500,Phaser.Easing.Linear.None, true);
+	enterNorth.onComplete.addOnce(standStill4,this);}
+	function standStill4(){
+	jenn.frame = 59;
+	jenn.animations.stop();
+	NorthButton.disabled=false; 
+	SouthButton.disabled=false;
+	EastButton.disabled=false;
+	WestButton.disabled=false;
+	}
+
+	
 </script>
 </body>
 </html>
