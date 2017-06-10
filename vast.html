@@ -94,7 +94,7 @@ function setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap){
 		var direction = sourceImagesObj[startImg][directionIndexFromStartImg];
 		var output = false;
 		while (output == false){
-			var neighborIndex = Math.floor(Math.random() * 247) + 12;
+			var neighborIndex = Math.floor(Math.random() * 20) + 12;
 			output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, theMap);
 		};
 		var neighbor = vast(neighborIndex);
@@ -120,7 +120,7 @@ function makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHo
 		var output = false; //init
 		count = 0; //init
 		while ((output == false) && (count < 100)){
-			var neighborNumber = Math.floor(Math.random() * 247) + 12; //generate 123 part of vast123
+			var neighborNumber = Math.floor(Math.random() * 20) + 12; //generate 123 part of vast123
 			output = nextChecker(sourceImagesObj,neighborAtDirectionFromHome, DIR, neighborNumber, oppositeDirection, theMap); //make sure we can use this vast123
 			count = count + 1;
 		}
@@ -272,7 +272,7 @@ $(document).ready(function(){
 	
 	//make a random starting img
 	//var imgObjKeys = Object.keys(sourceImagesObj);
-	var startImgIndex = Math.floor(Math.random() * 247) + 12;
+	var startImgIndex = Math.floor(Math.random() * 20) + 12;
 	var startImg = vast(startImgIndex);
 	setImg(startImg);
 
