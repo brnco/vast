@@ -90,27 +90,24 @@ z-index:2;
 	//function nextChecker(sourceImagesObj, vastNumKey, direction, neighborIndex, oppositeDirection, neighborhood, theMap){
 	//
 	function nextChecker(sourceImagesObj,home,directionToNewNeighbor,neighborNumber,oppositeDirection,neighborhood,theMap){
-		console.log("checking new neighbor");
-		console.log('home');
-		console.log(home);
-		console.log("directionToNewNeighbor");
-		console.log(directionToNewNeighbor);
-		console.log(JSON.stringify(theMap));
+		//console.log("checking new neighbor");
+		//console.log('home');
+		//console.log(home);
+		//console.log("directionToNewNeighbor");
+		//console.log(directionToNewNeighbor);
+		//console.log(JSON.stringify(theMap));
 		//var thisVastsNeighborhood = theMap[vastNumKey]; //get neighborhood for current tile
 		var proposedNewNeighbor = vast(neighborNumber); //convert supplied random 123 number to vast123
-		console.log("neighbrohood");
-		console.log(neighborhood);
-		console.log("proposedNewNeighbor");
-		console.log(proposedNewNeighbor);
+		//console.log("neighbrohood");
+		//console.log(neighborhood);
+		console.log("proposedNewNeighbor is " + proposedNewNeighbor);
+		//console.log();
 		for (var vnk in theMap){ //loop thru the vast number keys (vnk = "vast123","vast124",etc) in theMap
-			console.log("vnk");
-			console.log(vnk);
+			console.log("vnk is " + vnk);
+			//console.log();
 			var vnkNeighbor = theMap[vnk][directionToNewNeighbor];
-			console.log("vnkNeighbor");
-			console.log(vnkNeighbor);
-			//for (var thisVastsNeighborDirection in thisVastsNeighborhood){ //loop thru keys "n","s","e","w" available to current tile
-				//var thisVastsNeighbor = thisVastsNeighborhood[thisVastsNeighborDirection]; //get the neighbor at that direction
-				//console.log(thisVastsNeighbor);
+			console.log("vnkNeighbor at " + directionToNewNeighbor + " is " + vnkNeighbor);
+			//console.log();
 			if (vnkNeighbor == proposedNewNeighbor){ //if neighbor at direction == supplied random vastNum
 				return false;
 			}
@@ -144,8 +141,7 @@ z-index:2;
 			while (output == false){
 				var neighborIndex = Math.floor(Math.random() * 20) + 12;
 				output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, neighborhood, theMap);
-				console.log(neighborIndex);
-				console.log(output);
+				//console.log(neighborIndex);
 			};
 			var neighbor = vast(neighborIndex);
 			neighborhood[direction] = neighbor;
@@ -159,32 +155,25 @@ z-index:2;
 	*/
 	//function makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHome,neighborAtDirectionFromHome,neighborhood,theMap){
 	function makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighbor,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap){
-	console.log("assigning new neighbor");
-	console.log("directionToNewNeighbor");
-	console.log(directionToNewNeighbor);
-	console.log("directionFromOldNeighborToHome");
-	console.log(directionFromOldNeighborToHome);
-	//following 3 lines
-	//if a tile is already assigned north in the map, it can be assigned north again if coming from south of calling tile
-	if (directionToNewNeighbor == oppositeDirection[directionFromOldNeighborToHome]){ //if the direction we're assigning a neighbor to is the opposite of the direction we're coming from
-		var neighbor = oldNeighbor; //links the new neighbor to the old neighbor
+	//console.log("assigning new neighbor");
+	//console.log("directionToNewNeighbor");
+	//console.log(directionToNewNeighbor);
+	//console.log("directionFromOldNeighborToHome");
+	//console.log(directionFromOldNeighborToHome);
+	var output = false; //init
+	count = 0; //init
+	while ((output == false) && (count < 100)){
+		var neighborNumber = Math.floor(Math.random() * 20) + 12; //generate 123 part of vast123
+		output = nextChecker(sourceImagesObj,home, directionToNewNeighbor, neighborNumber, oppositeDirection, neighborhood, theMap); //make sure we can use this vast123
+		console.log("proposed new neighbor " + neighborNumber + " is " + output);
+		count = count + 1;
+	}
+	if (count < 99){
+		count = 0;
+		var neighbor = vast(neighborNumber); //convert index to vastNum tile
 		return neighbor;
 	} else {
-		var output = false; //init
-		count = 0; //init
-		while ((output == false) && (count < 100)){
-			var neighborNumber = Math.floor(Math.random() * 20) + 12; //generate 123 part of vast123
-			output = nextChecker(sourceImagesObj,home, directionToNewNeighbor, neighborNumber, oppositeDirection, neighborhood, theMap); //make sure we can use this vast123
-			console.log(output);
-			count = count + 1;
-		}
-		if (count < 99){
-			count = 0;
-			var neighbor = vast(neighborNumber); //convert index to vastNum tile
-			return neighbor;
-		} else {
-			return; //means that we've run out of new neighbors that we can use. end condition
-		}
+		return; //means that we've run out of new neighbors that we can use. end condition
 	}
 	}
 	/*
@@ -199,23 +188,43 @@ z-index:2;
 	*/
 	function addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection){
 	for (vnIndex in diff){ //for vastNumberIndex in list of images that were added
-		console.log("assigning new neighborhood");
+		console.log("generating new neighborhood");
 		var oldNeighbor = diff[vnIndex]; //vast number for item in themap we'd like to loop thru. home has a neighborhood already
+		console.log("old neighbor is " + oldNeighbor);
 		for (var directionFromOldNeighborToHome in theMap[oldNeighbor]){ //for directions available in tile with neighborhood already
 			var home = theMap[oldNeighbor][directionFromOldNeighborToHome]; //the vastNum at a direction for the tile in the diff
+			console.log("home is " + home);
+			console.log("direction from old neighbor to home is " + directionFromOldNeighborToHome);
 			if (theMap[home]){ continue; } else {
 				var neighborhood = {}; //init
+				for (vastNum in theMap){
+					for (direction in theMap[vastNum]){
+						var vastNumAtDirection = theMap[vastNum][direction];
+						if (home == vastNumAtDirection){
+							neighborhood[oppositeDirection[direction]] = oldNeighbor;
+						}
+					}
+				}
 				var directionsAvailableToHome = sourceImagesObj[home]; //string nsew for directions available in this tile
 				for (directionIndex in directionsAvailableToHome){ //loop thru directions available for this tile, directionIndex = "1""2""3""4" for "nsew"
 					var directionToNewNeighborFromHome = directionsAvailableToHome[directionIndex]; //the direction we're assigning right now, "n" = "nsew"[0]
-					neighbor = makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighborFromHome,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap);
-					if (!neighbor){
-						return theMap; //diff function will evaluate theMap as the same theMap that was	 passed to this function, diff[0] will = null
-					}
+					console.log("direction to new neighbor from home is " + directionToNewNeighborFromHome);
+					//if (directionToNewNeighborFromHome == oppositeDirection[directionFromOldNeighborToHome]){ //if the direction we're assigning a neighbor to is the opposite of the direction we're coming from
+						//var neighbor = oldNeighbor; //links the new neighbor to the old neighbor
+					if (neighborhood[directionToNewNeighborFromHome] == null){
+						console.log("generating new random neighbor");
+						neighbor = makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighborFromHome,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap);
+						if (!neighbor){
+							return theMap; //diff function will evaluate theMap as the same theMap that was	 passed to this function, diff[0] will = null
+						}
+					} else { continue; }
+					console.log("new neighbor is " + neighbor);
+					console.log("assigning neighborhood");
 					neighborhood[directionToNewNeighborFromHome] = neighbor; //add this direction:tile pair to the dictionary
+					console.log(JSON.stringify(neighborhood));
 				}	
 				theMap[home] = neighborhood; //add the list of neighbor tiles to the map at the key[vastNum]
-				console.log(theMap);
+				console.log(JSON.stringify(theMap));
 				//alert("new neighborhood");
 				
 			}		
