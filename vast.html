@@ -90,40 +90,23 @@ z-index:2;
 	//function nextChecker(sourceImagesObj, vastNumKey, direction, neighborIndex, oppositeDirection, neighborhood, theMap){
 	//
 	function nextChecker(sourceImagesObj,home,directionToNewNeighbor,neighborNumber,oppositeDirection,neighborhood,theMap){
-	//console.log("checking new neighbor");
-	//console.log('home');
-	//console.log(home);
-	//console.log("directionToNewNeighbor");
-	//console.log(directionToNewNeighbor);
-	//console.log(JSON.stringify(theMap));
-	//var thisVastsNeighborhood = theMap[vastNumKey]; //get neighborhood for current tile
 	var proposedNewNeighbor = vast(neighborNumber); //convert supplied random 123 number to vast123
-	//console.log("neighbrohood");
-	//console.log(neighborhood);
-	//console.log("proposedNewNeighbor is " + proposedNewNeighbor);
-	//console.log();
 	for (var vnk in theMap){ //loop thru the vast number keys (vnk = "vast123","vast124",etc) in theMap
-		//console.log("vnk is " + vnk);
-		//console.log();
-		var vnkNeighbor = theMap[vnk][directionToNewNeighbor];
-		var vnkOppNeighbor = theMap[vnk][oppositeDirection[directionToNewNeighbor]];
-		//console.log("vnkNeighbor at " + directionToNewNeighbor + " is " + vnkNeighbor);
-		//console.log("vnkOppNeighbor is " + vnkOppNeighbor);
-		//if (vnkNeighbor == proposedNewNeighbor || vnkNeighbor == null){ //if neighbor at direction == supplied random vastNum or if it doesn't exist
+		var vnkNeighbor = theMap[vnk][directionToNewNeighbor]; //neighbor at a direction
+		var vnkOppNeighbor = theMap[vnk][oppositeDirection[directionToNewNeighbor]]; //neighbor at opposite direction
+		//if neighbor at direction == supplied random vastNum or if neighbor at opposite direction (need to link back)
 		if (vnkNeighbor == proposedNewNeighbor || vnkOppNeighbor == proposedNewNeighbor){
 			return false;
 		}
 	}
 	for (var dir in neighborhood){
-		//console.log("vastNum at " + dir + " is " + neighborhood[dir]);
-		if (proposedNewNeighbor == neighborhood[dir]){
+		if (proposedNewNeighbor == neighborhood[dir]){ //if neighbor already in neighborhood
 			return false;
 		}
 	}	
 	if (proposedNewNeighbor == home){ //if it's the same random number as the current tile
 		return false;
-	} else if (sourceImagesObj[proposedNewNeighbor].indexOf(oppositeDirection[directionToNewNeighbor])<0){ //if we can't link this tile back to the previous tile becaus ethat direction not available to tile or already assigned
-	//} else if (sourceImagesObj[proposedNewNeighbor].indexOf(oppositeDirection[directionToNewNeighbor])<0){	
+	} else if (sourceImagesObj[proposedNewNeighbor].indexOf(oppositeDirection[directionToNewNeighbor])<0){ //if we can't link this tile back to the previous tile becaus ethat direction not available to tile	
 		return false;
 	} else {
 		return true;
@@ -143,7 +126,6 @@ z-index:2;
 			while (output == false){
 				var neighborIndex = Math.floor(Math.random() * 50) + 12;
 				output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, neighborhood, theMap);
-				//console.log(neighborIndex);
 			};
 			var neighbor = vast(neighborIndex);
 			neighborhood[direction] = neighbor;
@@ -157,19 +139,12 @@ z-index:2;
 	*/
 	//function makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHome,neighborAtDirectionFromHome,neighborhood,theMap){
 	function makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighbor,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap){
-	//console.log("assigning new neighbor");
-	//console.log("directionToNewNeighbor");
-	//console.log(directionToNewNeighbor);
-	//console.log("directionFromOldNeighborToHome");
-	//console.log(directionFromOldNeighborToHome);
 	var output = false; //init
 	count = 0; //init
-	while ((output == false) && (count < 30)){
+	while (output == false && count < 30){
 		var neighborNumber = Math.floor(Math.random() * 50) + 12; //generate 123 part of vast123
 		output = nextChecker(sourceImagesObj,home, directionToNewNeighbor, neighborNumber, oppositeDirection, neighborhood, theMap); //make sure we can use this vast123
-		//console.log("proposed new neighbor " + neighborNumber + " is " + output);
 		count = count + 1;
-		//console.log(count);
 	}
 	if (count < 30){
 		count = 0;
@@ -191,55 +166,39 @@ z-index:2;
 	*/
 	function addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection){
 	for (vnIndex in diff){ //for vastNumberIndex in list of images that were added
-		//console.log("generating new neighborhood");
 		var oldNeighbor = diff[vnIndex]; //vast number for item in themap we'd like to loop thru. home has a neighborhood already
-		//console.log("old neighbor is " + oldNeighbor);
 		for (var directionFromOldNeighborToHome in theMap[oldNeighbor]){ //for directions available in tile with neighborhood already
 			var home = theMap[oldNeighbor][directionFromOldNeighborToHome]; //the vastNum at a direction for the tile in the diff
-			//console.log("home is " + home);
-			//console.log("direction from old neighbor to home is " + directionFromOldNeighborToHome);
-			if (theMap[home]){ continue; } else {
+			if (theMap[home]){ continue; } else { //if this already exists in the map
 				var neighborhood = {}; //init
+				//following lines assign the opposite direction of oldNeighbor to home, linking home to old neighbor
 				for (vastNum in theMap){
 					for (direction in theMap[vastNum]){
 						var vastNumAtDirection = theMap[vastNum][direction];
 						if (home == vastNumAtDirection){
 							neighborhood[oppositeDirection[direction]] = vastNum;
-							//console.log("vastNum " + vastNum + " assigned at " + oppositeDirection[direction] + " to " + home);
-							//console.log(JSON.stringify(neighborhood));
-						//} else if (theMap[vastNum][oppositeDirection[direction]] == null && neighborhood[direction] == vastNum){
-							//theMap[vastNum][oppositeDirection[direction]] = home;
 						}
 					}
 				}
+				//following lines assign the rest of the directions available to home
 				var directionsAvailableToHome = sourceImagesObj[home]; //string nsew for directions available in this tile
 				for (directionIndex in directionsAvailableToHome){ //loop thru directions available for this tile, directionIndex = "1""2""3""4" for "nsew"
 					var directionToNewNeighborFromHome = directionsAvailableToHome[directionIndex]; //the direction we're assigning right now, "n" = "nsew"[0]
-					//console.log("direction to new neighbor from home is " + directionToNewNeighborFromHome);
-					//if (directionToNewNeighborFromHome == oppositeDirection[directionFromOldNeighborToHome]){ //if the direction we're assigning a neighbor to is the opposite of the direction we're coming from
-						//var neighbor = oldNeighbor; //links the new neighbor to the old neighbor
-					if (neighborhood[directionToNewNeighborFromHome] == null){
-						//console.log("generating new random neighbor at " + directionToNewNeighborFromHome + "for " + home);
+					if (neighborhood[directionToNewNeighborFromHome] == null){ //if the neighbor in this direction not already assigned (back-linked to oldNeighbor)
 						neighbor = makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighborFromHome,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap);
 						if (!neighbor){
 							continue;
-							//return theMap; //diff function will evaluate theMap as the same theMap that was	 passed to this function, diff[0] will = null
 						}
-					} else { continue; }
-					//console.log("new neighbor is " + neighbor);
-					//console.log("assigning neighborhood");
+					} else { continue; } //if neighbor was not null, move onto next direction, neighborhood[direction] already assigned
 					neighborhood[directionToNewNeighborFromHome] = neighbor; //add this direction:tile pair to the dictionary
-					//console.log(JSON.stringify(neighborhood));
-					if (theMap[neighbor]){
+					if (theMap[neighbor]){ //if theMap has an entry for the neighbor, make sure it's assigned to home
 						if (theMap[neighbor][oppositeDirection[directionToNewNeighborFromHome]] == null){
 							theMap[neighbor][oppositeDirection[directionToNewNeighborFromHome]] = home;
 						}
 					}
 				}	
 				theMap[home] = neighborhood; //add the list of neighbor tiles to the map at the key[vastNum]
-				console.log(JSON.stringify(theMap));
-				//alert("new neighborhood");
-				
+				console.log(JSON.stringify(theMap)); //log it	
 			}		
 		}
 	}
