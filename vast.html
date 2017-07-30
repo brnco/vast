@@ -89,7 +89,7 @@ body:before {
 	
 #plane{
 	position:absolute;
-	bottom:40px;left:0; right:0; 
+	top:0px;left:0; right:0; 
 	z-index:1;
 	margin:auto;
 	width:100%;
@@ -106,7 +106,7 @@ body:before {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	overflow: hidden;
+	overflow: auto;
 	image-rendering:optimizeSpeed;          	/* Legal fallback */
 	image-rendering:-moz-crisp-edges;          /* Firefox        */
 	image-rendering:-o-crisp-edges;            /* Opera          */
@@ -117,19 +117,19 @@ body:before {
 	-ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
 	}
 #plane img {
-	/*height:100%;*/
-	width:100%;
+	top:0;left:0;
+	position:absolute;
 	}
 /*game div*/
 #gameDiv{
 	position:absolute;
 	margin:auto;
-	bottom:40px;left:0; right:0; 
+	top:0px;left:0; right:0; 
 	z-index:2;
 	width:100%;
 	height:calc(100% - 40px);
 	overflow: hidden;
-	border:5px solid magenta;
+	border:2px solid magenta;
 	/*max-width:1280px;
 	min-width:640px;
 	padding-bottom:56.25%;
@@ -499,28 +499,6 @@ body:before {
 	var startImg = vast(startImgIndex);
 	setImg(startImg);
 
-	//assign init image to plane
-	//$('#plane').css({
-	//	height:"300px",
-	//	width:"300px",
-	//	backgroundRepeat: "no-repeat",
-	//	backgroundSize:"cover",
-	//	backgroundColor:"blue"
-		//backgroundSize:"320px 190px"
-	//});
-	//$('#north').css({
-	//	top:"800px",
-	//});
-	//	$('#south').css({
-	//	top:"800px",
-	//});
-	//	$('#east').css({
-	//	top:"800px",
-	//	
-	//});
-	//	$('#west').css({
-	//	top:"800px",
-	//});
 	//init map stuff
 	var theMap = {};
 	var a = Object.keys(theMap);
@@ -547,7 +525,14 @@ body:before {
 	setTimeout(function(){
 	loadButtons();
 	},2000);
-	});	
+	});
+	window.onresize = function(){
+		if (window.innerWidth > window.innerHeight || window.innerWidth < $("#plane").find("img:first").width){
+			$("#plane").find("img:first").attr('width','100%').attr('height','auto');
+		} else if (window.innerHeight > window.innerWidth || window.innerHeight < $("#plane").find("img:first").height){
+			$("#plane").find("img:first").attr('height','100%').attr('width','auto');
+		}
+	}	
 </script>
 </div>
 <script>		
@@ -594,8 +579,12 @@ body:before {
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;	
 	game.scale.minWidth= 640;
 	game.scale.minHeight=360;
-	sc_image=game.width;
-	sc_image=game.height;
+	/*
+	var vimage=$("#plane").find("img:first");
+	console.log(vimage);
+	vimage=game.width;
+	vimage=game.height;
+	*/
 
 //JENN
 	jenn = game.add.sprite(game.world.centerX,game.world.centerY+200,"jenRun");
