@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="UTF-8" />
+        <script src="js/phaser.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+		<script src="/pace/pace.js"></script>
+    </head>
+<style>
+
+body{
+margin:0 auto;
+background-color:black;
+}
+/*loading bar*/
+	body.pace-running:before {
+	content: "";
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	z-index: 1500;
+	background-color: rgba(0, 0, 0, 1);
+}
+body:before {
+	background-color: rgba(0, 0, 0, 0);
+	-webkit-transition: background-color 200ms;
+	-moz-transtition: background-color 200ms;
+	-ms-transition: background-color 200ms;
+	-o-transition: background-color: 200ms;
+	transition: background-color 200ms;
+}
+.pace {
+	-webkit-pointer-events: none;
+	pointer-events: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+	z-index: 2000;
+	position: fixed;
+	margin: auto;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 5px;
+	width: 200px;
+	background: #fff;
+	overflow: hidden;
+	border-radius:10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-ms-border-radius:10px;
+	-o-border-radius:10px;
+	}
+.pace .pace-progress {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-transform: translate3d(0, 0, 0);
+	-moz-transform: translate3d(0, 0, 0);
+	-ms-transform: translate3d(0, 0, 0);
+	-o-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+	max-width: 200px;
+	position: fixed;
+	z-index: 2000;
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 100%;
+	height: 100%;
+	width: 100%;
+	background: magenta;
+	}
+	.pace.pace-inactive {
+	display: none;
+	}
+/*plane*/
+#planeColorFader{
+	position:absolute;
+	height:720px;
+	width:1280px;
+	top:40px;left:0; right:0; 
+	background-color:black;
+	}
+#plane{
+	position:absolute;
+	top:40px;left:0; right:0; 
+	z-index:1;
+	margin:auto;
+	width:100%;
+	max-width:1280px;
+	min-width:640px;
+	
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	border:5px solid red;
+	image-rendering:optimizeSpeed;          	/* Legal fallback */
+	image-rendering:-moz-crisp-edges;          /* Firefox        */
+	image-rendering:-o-crisp-edges;            /* Opera          */
+	image-rendering:-webkit-optimize-contrast; /* Safari         */
+	image-rendering:optimize-contrast;         /* CSS3 Proposed  */
+	image-rendering:crisp-edges;               /* CSS4 Proposed  */
+	image-rendering:pixelated;                 /* CSS4 Proposed  */
+	-ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
+	}
+#plane img {
+	flex-shrink: 0;
+	min-width: 100%;
+	min-height: 100%;
+	}
+/*game div*/
+#gameDiv{
+	position:absolute;
+	margin:auto;
+	top:40px;left:0; right:0; 
+	z-index:2;
+	width:100%;
+	max-width:1280px;
+	min-width:640px;
+	padding-bottom:56.25%;
+	overflow: hidden;
+	border:5px solid magenta;
+	}
+/*SIZING WORK*/
+#containerAll{
+	position:absolute;
+	margin:auto;
+	top:0px; left:0; right:0; 
+	z-index:1;
+	height:100vh;
+	width:100vw;
+	overflow: hidden;
+	border:5px solid green;
+	}
+
+/*font import*/
+	@font-face{
+	font-family: IBMFont;
+	src: url(rooms/font/Px437_IBM_ISO9.ttf);
+	}
+/*buttons*/
+	#buttonContain{
+	position:absolute;
+	margin:auto;
+	left:0;right:0; 
+	border:2px solid orange;
+	top:800px;
+	width:1280px;
+	}
+	#east {
+	font-family: IBMFont;
+	font-size: 16px;
+	font-weight: bold;
+	background:black;
+	color:white;
+	border-radius:8px;
+	}
+	#east:hover{
+	background-color:pink;
+	}
+	#east:disabled{
+	opacity:0.6;
+	}
+	#east:disabled:hover{
+	background-color:black;
+	}
+	#west {
+	font-family: IBMFont;
+	font-size: 16px;
+	font-weight: bold;
+	background:black;
+	color:white;
+	border-radius:8px;
+	}
+	#west:hover{
+	background-color:pink;
+	}
+	#west:disabled{
+	opacity:0.6;
+	}
+	#west:disabled:hover{
+	background-color:black;
+	}
+	#south {
+	font-family: IBMFont;
+	font-size: 16px;
+	font-weight: bold;
+	background:black;
+	color:white;
+	border-radius:8px;
+	}
+	#south:hover{
+	background-color:pink;
+	}
+	#south:disabled{
+	opacity:0.6;
+	}
+	#south:disabled:hover{
+	background-color:black;
+	}
+	#north {
+	font-family: IBMFont;
+	font-size: 16px;
+	font-weight: bold;
+	background:black;
+	color:white;
+	border-radius:8px;
+	}
+	#north:hover{
+	background-color:pink;
+	}
+	#north:disabled{
+	opacity:0.6;
+	}
+	#north:disabled:hover{
+	background-color:black;
+	}
+/*border*/
+	#borders{
+	position:absolute;
+	top:0;
+	left:0;
+	background:url("rooms/background1.png");
+	background-size:cover;
+	width:1280px;
+	height:720px;
+	z-index:99;
+}
+</style>
+
+<body>
+<div id="planeColorFader"></div>
+<div id="gameDiv"></div>
+<div id="plane"></div>
+<div id="buttonContain">
+<center>
+<input id="north" type="button" value="north" style="visibility:hidden;" onclick="loadImg('n')"/>
+<input id="south" type="button" value="south" style="visibility:hidden;" onclick="loadImg('s')"/>
+<input id="west" type="button" value="west" style="visibility:hidden;" onclick="loadImg('w')"/>
+<input id="east" type="button" value="east" style="visibility:hidden;" onclick="loadImg('e')"/>
+</center>
+</div>
+<script>
+
+	/*
+	vast
+	*/
+	function vast(number){
+		return "vast" + number.toString();
+	}
+	/*
+	setImage
+
+	puts a new image on the page
+	//$('#plane').css("background-image","url(" + imgpath+ ")");
+	//$('#plane').load(imgpath + ' #plane');
+	*/
+	function setImg(img){
+		var rootContext = "/vast"; //path context for generating paths to the images
+		var imgpath = rootContext + '/images/' + img + '.png';
+		var image = new Image();
+		image.src = imgpath;
+		image.onload = function() {
+			$('#plane').empty().append(image);
+		}
+	}
+	/*
+	nextChecker
+	takes input vastNum and figues out if it's eligible to add to the neighborhood
+	vastNum is eligible if:
+	1) it is not already assigned to the directionTo another vastNumber in themap
+	2) not the first tile
+	3) that it can link back to its potential neighbor
+	*/
+	//function nextChecker(sourceImagesObj, vastNumKey, direction, neighborIndex, oppositeDirection, neighborhood, theMap){
+	//
+	function nextChecker(sourceImagesObj,home,directionToNewNeighbor,neighborNumber,oppositeDirection,neighborhood,theMap){
+	var proposedNewNeighbor = vast(neighborNumber); //convert supplied random 123 number to vast123
+	for (var vnk in theMap){ //loop thru the vast number keys (vnk = "vast123","vast124",etc) in theMap
+		var vnkNeighbor = theMap[vnk][directionToNewNeighbor]; //neighbor at a direction
+		var vnkOppNeighbor = theMap[vnk][oppositeDirection[directionToNewNeighbor]]; //neighbor at opposite direction
+		//if neighbor at direction == supplied random vastNum or if neighbor at opposite direction (need to link back)
+		if (vnkNeighbor == proposedNewNeighbor || vnkOppNeighbor == proposedNewNeighbor){
+			return false;
+		}
+	}
+	for (var dir in neighborhood){
+		if (proposedNewNeighbor == neighborhood[dir]){ //if neighbor already in neighborhood
+			return false;
+		}
+	}	
+	if (proposedNewNeighbor == home){ //if it's the same random number as the current tile
+		return false;
+	} else if (sourceImagesObj[proposedNewNeighbor].indexOf(oppositeDirection[directionToNewNeighbor])<0){ //if we can't link this tile back to the previous tile becaus ethat direction not available to tile	
+		return false;
+	} else {
+		return true;
+	}
+	}
+	/*
+	setStartObj
+	
+	creates an initial {"n":"vast123","s":"vast45"} object
+	see makeNeighbor for comments
+	*/
+	function setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap){
+		var neighborhood = {}; //init
+		for (var directionIndexFromStartImg in sourceImagesObj[startImg]){
+			var direction = sourceImagesObj[startImg][directionIndexFromStartImg];
+			var output = false;
+			while (output == false){
+				var neighborIndex = Math.floor(Math.random() * 50) + 12;
+				output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, neighborhood, theMap);
+			};
+			var neighbor = vast(neighborIndex);
+			neighborhood[direction] = neighbor;
+		}
+		return neighborhood;
+	}
+	/*
+	makeNeighbor
+
+	returns a vastNum for supplied direction based on rules
+	*/
+	//function makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHome,neighborAtDirectionFromHome,neighborhood,theMap){
+	function makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighbor,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap){
+	var output = false; //init
+	count = 0; //init
+	while (output == false && count < 30){
+		var neighborNumber = Math.floor(Math.random() * 50) + 12; //generate 123 part of vast123
+		output = nextChecker(sourceImagesObj,home, directionToNewNeighbor, neighborNumber, oppositeDirection, neighborhood, theMap); //make sure we can use this vast123
+		count = count + 1;
+	}
+	if (count < 30){
+		count = 0;
+		var neighbor = vast(neighborNumber); //convert index to vastNum tile
+		return neighbor;
+	} else {
+		return; //means that we've run out of new neighbors that we can use. end condition
+	}
+	}
+	/*
+	addNeighborhoodsToTheMap
+
+	loops thru diff, grips neighbors at each directions
+	for each neighbor at each direction
+	loops through directions available to neighbor
+	generates new neighbor at that direction
+	links old neighbor back at the opposite direction
+	assigns neighborhood to themap
+	*/
+	function addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection){
+	for (vnIndex in diff){ //for vastNumberIndex in list of images that were added
+		var oldNeighbor = diff[vnIndex]; //vast number for item in themap we'd like to loop thru. home has a neighborhood already
+		for (var directionFromOldNeighborToHome in theMap[oldNeighbor]){ //for directions available in tile with neighborhood already
+			var home = theMap[oldNeighbor][directionFromOldNeighborToHome]; //the vastNum at a direction for the tile in the diff
+			if (theMap[home]){ continue; } else { //if this already exists in the map
+				var neighborhood = {}; //init
+				//following lines assign the opposite direction of oldNeighbor to home, linking home to old neighbor
+				for (vastNum in theMap){
+					for (direction in theMap[vastNum]){
+						var vastNumAtDirection = theMap[vastNum][direction];
+						if (home == vastNumAtDirection){
+							neighborhood[oppositeDirection[direction]] = vastNum;
+						}
+					}
+				}
+				//following lines assign the rest of the directions available to home
+				var directionsAvailableToHome = sourceImagesObj[home]; //string nsew for directions available in this tile
+				for (directionIndex in directionsAvailableToHome){ //loop thru directions available for this tile, directionIndex = "1""2""3""4" for "nsew"
+					var directionToNewNeighborFromHome = directionsAvailableToHome[directionIndex]; //the direction we're assigning right now, "n" = "nsew"[0]
+					if (neighborhood[directionToNewNeighborFromHome] == null){ //if the neighbor in this direction not already assigned (back-linked to oldNeighbor)
+						neighbor = makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighborFromHome,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap);
+						if (!neighbor){
+							continue;
+						}
+					} else { continue; } //if neighbor was not null, move onto next direction, neighborhood[direction] already assigned
+					neighborhood[directionToNewNeighborFromHome] = neighbor; //add this direction:tile pair to the dictionary
+					if (theMap[neighbor]){ //if theMap has an entry for the neighbor, make sure it's assigned to home
+						if (theMap[neighbor][oppositeDirection[directionToNewNeighborFromHome]] == null){
+							theMap[neighbor][oppositeDirection[directionToNewNeighborFromHome]] = home;
+						}
+					}
+				}	
+				theMap[home] = neighborhood; //add the list of neighbor tiles to the map at the key[vastNum]
+				//console.log(JSON.stringify(theMap)); //log it	
+			}		
+		}
+	}
+	return theMap;
+	}
+	/*
+	loads the bottons with every new image
+	toggles button visibility based on the image's available directions in the map
+	*/
+	function loadButtons(){
+	var currentImg = $('#plane').children("img").prop('src');
+	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
+	var result = myRe.exec(currentImg); //run that pattern against the url
+	var vastImg = result[0]; //get first index of object returned by regex = vast123
+	var vastImgDirsObj = Vast.theMap[vastImg]; //get the vastNum object from theMap vast123{"n":"vast124","s":"vast125"}
+	vastImgDirs = Object.keys(vastImgDirsObj); //get just a list of the directions ["n","s","e","w"]
+	if (Vast.theMap[vastImg]["n"]){
+		$('#north').css('visibility','visible');
+		
+	} else {
+		$('#north').css('visibility','hidden');
+	}
+	if (Vast.theMap[vastImg]["s"]){
+		$('#south').css('visibility','visible');
+	} else {
+		$('#south').css('visibility','hidden');
+	}
+	if (Vast.theMap[vastImg]["e"]){
+		$('#east').css('visibility','visible');
+	} else {
+		$('#east').css('visibility','hidden');
+	}
+	if (Vast.theMap[vastImg]["w"]){
+		$('#west').css('visibility','visible');
+	} else {
+		$('#west').css('visibility','hidden');
+	}
+	}
+	/*
+	loadImg
+
+	loads a new image to #plane on input of a button
+	new image loaded corresponds to direction pressed by
+	button, "north" "south" "east" "west"
+	as delineated by the map
+	*/
+	function loadImg(directionTo){
+	directionFrom = Vast.oppositeDirection[directionTo];
+	var currentImg = $('#plane').children("img").prop('src'); //img that is currently displayed
+	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
+	var result = myRe.exec(currentImg); //run that pattern against the url
+	var currentImg = result[0];
+	if (Vast.theMap[currentImg] != null){
+		newImg = Vast.theMap[currentImg][directionTo];
+		setImg(newImg);
+		setTimeout(function(){
+			loadButtons();
+		},100)
+	}
+	}
+	//init namespace object to store global theMap and oppositeDirection objects
+	var Vast = {};
+
+	$(document).ready(function(){
+	/*
+	init
+	the array has key values for the 
+	"vastNumber":"stringDirectionNSEW"
+	so. {"vast123":"nsw","vast456":"nsew"}
+	*/
+	var sourceImagesObj = (function() {
+		var sourceImagesObj = null;
+		$.ajax({
+			'async': false,
+			'global': false,
+			'url': "images.json",
+			'dataType': "json",
+			'success': function (data) {
+				json = data;
+			}
+		});
+		return json;
+	})();
+
+	//init array for opposite_direction values
+	var oppositeDirection = {
+		"n":"s",
+		"s":"n",
+		"e":"w",
+		"w":"e"
+	}
+	//assign to global namespace object
+	Vast.oppositeDirection = oppositeDirection;
+	
+	//make a random starting img
+	//var imgObjKeys = Object.keys(sourceImagesObj);
+	var startImgIndex = Math.floor(Math.random() * 50) + 12;
+	var startImg = vast(startImgIndex);
+	setImg(startImg);
+
+	//assign init image to plane
+	//$('#plane').css({
+	//	height:"300px",
+	//	width:"300px",
+	//	backgroundRepeat: "no-repeat",
+	//	backgroundSize:"cover",
+	//	backgroundColor:"blue"
+		//backgroundSize:"320px 190px"
+	//});
+	//$('#north').css({
+	//	top:"800px",
+	//});
+	//	$('#south').css({
+	//	top:"800px",
+	//});
+	//	$('#east').css({
+	//	top:"800px",
+	//	
+	//});
+	//	$('#west').css({
+	//	top:"800px",
+	//});
+	//init map stuff
+	var theMap = {};
+	var a = Object.keys(theMap);
+	var neighborhood = {};
+	neighborhood = setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap);
+	theMap[startImg] = neighborhood;
+	var diff = Object.keys(theMap)
+	console.log(theMap);
+	/*
+	fill the map
+	starts with the diff of the previous map and the current map
+	sends the map and the diff to addNeighborhoodsToTheMap	
+	*/
+	while (diff[0]){
+		a = Object.keys(theMap); //assign array to the tiles currently in
+		theMap = addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection);
+		var diff = Object.keys(theMap).filter(function(x) { return a.indexOf(x) < 0});
+	}
+	//console.log(theMap);
+	//assign the completed theMap to the global namespace object
+	Vast.theMap = theMap;
+	
+	//breathe, then load the buttons
+	setTimeout(function(){
+	loadButtons();
+	},2000);
+	});	
+</script>
+</div>
+<script>		
+//ENTER THE PHAAASER
+	
+//Define the buttons
+	var NorthButton = document.getElementById('north');
+	var EastButton = document.getElementById('east');
+	var WestButton = document.getElementById('west');
+	var SouthButton = document.getElementById('south');
+
+//Game
+	var game = new Phaser.Game(1280, 720, Phaser.CANVAS, 'gameDiv', { preload: preload, create: create, update: update}, true);
+	function preload(){
+	game.load.spritesheet("jenRun","rooms/jennRun.png",32,61);
+	game.load.image("RightBorder","rooms/RightBorder.png");
+	game.load.image("TopBorder","rooms/TopBorder.png");
+	game.load.spritesheet("anim1","rooms/anim1.png",116,109);
+	game.load.spritesheet("anim2","rooms/anim2.png",31,39);
+	game.load.spritesheet("anim3","rooms/anim3.png",56,47);
+	game.load.spritesheet("anim4","rooms/anim4.png",16,18);
+	game.load.spritesheet("anim5","rooms/anim5.png",44,29);
+	game.load.spritesheet("anim6","rooms/anim6.png",44,49);
+	game.load.spritesheet("anim7","rooms/anim7.png",44,29);
+	game.load.spritesheet("anim8","rooms/anim8.png",44,29);
+	game.load.spritesheet("anim9","rooms/anim9.png",122,74);
+	game.load.spritesheet("anim10","rooms/anim10.png",114,82);
+	game.load.spritesheet("anim11","rooms/anim11.png",40,31);
+	game.load.spritesheet("anim12","rooms/anim12.png",44,29);
+	game.load.spritesheet("anim13","rooms/anim13.png",84,86);
+	game.load.spritesheet("anim14","rooms/anim14.png",98,78);
+	game.load.spritesheet("anim15","rooms/anim15.png",65,70);
+	game.load.spritesheet("birds","rooms/birds.png",60,48);
+	game.load.spritesheet("anim16","rooms/anim16.png",44,29);
+	game.load.spritesheet("anim17","rooms/anim17.png",44,29);
+	game.load.spritesheet("anim18","rooms/anim18.png",44,29);
+	game.load.spritesheet("anim19","rooms/anim19.png",44,29);
+	game.load.image("background1","rooms/background1.png");
+
+	}
+	function create(){
+	game.physics.startSystem(Phaser.Physics.ARCADE);	
+	game.world.setBounds(0,0, 1280,720);
+	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;	
+	game.scale.minWidth= 640;
+	game.scale.minHeight=360;
+
+
+//JENN
+	jenn = game.add.sprite(game.world.centerX,game.world.centerY+200,"jenRun");
+	jenn.smoothed=false;
+	jenn.scale.x=4;
+	jenn.scale.y=4;
+	jenn.anchor.setTo (0.5,0.5);
+	jenn.inputEnabled=true;
+	jenn.enableBody=true;
+	game.physics.arcade.enable(jenn);
+	jenn.alpha=1;
+	/* on input down over Jenn, move Jenn
+	jenn.events.onInputDown.add(function jennRunRi(){
+	jenn.animations.add("runRi",[1,2,3,4,5,6],10,true);
+	jenn.animations.play("runRi");
+	jenn.body.velocity.x=300;
+	}),this;
+	*/
+//OBJECTS
+	anims = game.add.group();
+	allSprites = 
+	['anim1','anim2','anim3','anim4','anim5','anim6','anim7','anim8','anim9','anim10','anim11','anim12','anim13','anim14','anim15','anim16','anim17','anim18','anim19'];
+	
+	//moveEm = function (){
+	for (var i = 0; i < 19; i++)
+    {
+	//anims.create(game.world.randomX, game.rnd.integerInRange(265,400), 'anim1');
+	//anims.create(game.world.randomX, game.rnd.integerInRange(265,400), 'anim2');
+	//anims.create(game.world.randomX, game.rnd.integerInRange(265,400), 'anim3');
+	//anims.create(game.world.randomX, game.rnd.integerInRange(265,400), 'anim4');
+	//anims.callAll("animations.add","animations","anims",[], 10, true);
+	//anims.callAll("animations.play","animations","anims");
+	//anims.setAll("smoothed",false);
+	animsChil = anims.create(game.world.randomX, game.rnd.integerInRange(0,300), allSprites[i]);
+	animsChil.animations.add("animsChil", [],10,true);
+	animsChil.animations.play("animsChil");
+	animsChil.alpha = game.rnd.integerInRange(0,1);
+	}
+	//borders = game.add.sprite(0,-60,"background1");
+	//borders.smoothed=false;
+	
+
+	//}
+	//moveEm();
+//Borders
+	RightBorder = game.add.sprite(1400,0,"RightBorder"); //offscreen
+	game.physics.arcade.enable(RightBorder);
+	RightBorder.inputEnabled=true;
+	RightBorder.enableBody=true;
+	RightBorder.body.immovable = true;
+	RightBorder.visible =false;
+	LeftBorder = game.add.sprite(-120,0,"RightBorder");
+	game.physics.arcade.enable(LeftBorder);
+	LeftBorder.inputEnabled=true;
+	LeftBorder.enableBody=true;
+	LeftBorder.body.immovable = true;
+	LeftBorder.visible =false;
+	TopBorder = game.add.sprite(0,250, "TopBorder"); //-200 to make her appear to go offscreen before transition
+	game.physics.arcade.enable(TopBorder);
+	TopBorder.inputEnabled=true;
+	TopBorder.enableBody=true;
+	TopBorder.body.immovable = true;
+	TopBorder.visible=false;
+	BottomBorder = game.add.sprite(0,820,"TopBorder");
+	game.physics.arcade.enable(BottomBorder);
+	BottomBorder.inputEnabled=true;
+	BottomBorder.enableBody=true;
+	BottomBorder.body.immovable = true;
+	BottomBorder.visible=false;
+//MOVE JENN
+//BUTTON FUNCTION MOVE ON CLICK
+
+//EAST
+	EastButton.onclick = function moveJennEast(){ 
+	NorthButton.disabled=true; //deactivate all other buttons once one is clicked
+	SouthButton.disabled=true;
+	EastButton.disabled=true;
+	WestButton.disabled=true;
+	jenn.animations.add("runRi",[1,2,3,4,5,6],10,true);
+	jenn.animations.play("runRi");
+	jenn.body.velocity.x=300; //  5/20   NEED TO CHANGE TO TWEEN?
+	$("#plane").fadeOut(1500);
+	fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+	//fadeAnims.onComplete.add(destroyEm,this);
+	//function destroyEm(animsChil){
+	//animsChil.kill();
+	//}
+	//game.camera.fade('#0000ff');
+	};
+//WEST
+	WestButton.onclick = function moveJennWest(){
+	NorthButton.disabled=true;
+	SouthButton.disabled=true;
+	EastButton.disabled=true;
+	WestButton.disabled=true;
+	jenn.animations.add("runWe",[8,9,10,11,12,13],10,true);
+	jenn.animations.play("runWe");
+	jenn.body.velocity.x=-300;
+	$("#plane").fadeOut(1500);
+	fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+	};
+//NORTH
+	NorthButton.onclick = function moveJennNorth(){
+	NorthButton.disabled=true;
+	SouthButton.disabled=true;
+	EastButton.disabled=true;
+	WestButton.disabled=true;
+	jenn.animations.add("runNo",[14,15,16,17,18,19,20,21,22,23,24,25,26,29,30,31,32,33,34,35,60,61,62,63,64,65,66,67,68,69],10,true);
+	jenn.animations.play("runNo");
+	jenn.body.velocity.y=-100;
+	$("#plane").fadeOut(1200);
+	fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+	fadeJenn = game.add.tween(jenn).to( { alpha: 0 }, 100, Phaser.Easing.Linear.None,true,1500);
+	}
+//SOUTH
+	SouthButton.onclick = function moveJennSouth(){
+	NorthButton.disabled=true;
+	SouthButton.disabled=true;
+	EastButton.disabled=true;
+	WestButton.disabled=true;
+	jenn.scale.x=5.7; //appear to move forward
+	jenn.scale.y=5.7;
+	jenn.animations.add("runSo",[36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,69,70,71,72,73,74],10,false);
+	jenn.animations.play("runSo"); 
+	jenn.body.velocity.y=50;
+	$("#plane").fadeOut(1200);
+	fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+	fadeJenn = game.add.tween(jenn).to( { alpha: 0 }, 100, Phaser.Easing.Linear.None,true,1500);
+	}
+//Bird Group
+	birdG = game.add.group();
+    birdG.enableBody = true;
+	birdGGen = game.time.events.loop(8500,genB, this);
+    birdGGen.timer.start();
+	}
+	function update(){
+//ON COLLIDE PLAY FUNCTION
+	game.physics.arcade.collide(jenn, RightBorder, playEast, null, this);
+	game.physics.arcade.collide(jenn, LeftBorder, playWest, null, this);
+	game.physics.arcade.collide(jenn, TopBorder, playNorth, null, this);
+	game.physics.arcade.collide(jenn, BottomBorder, playSouth, null, this);
+	}
+//BIRDS ACROSS SCREEN
+	function genB(){
+	for (var i = 0; i < 1; i++){
+	var x = i * 1;
+	var velocityX = game.rnd.integerInRange(220, 480);
+	var bird;
+	bird = birdG.getFirstExists(false);
+	if (!bird) {
+	bird = game.add.sprite(game.world.randomX, 0, 'birds');
+	bird.animations.add('bird');
+	bird.play('bird',10,true);
+	birdG.add(bird);
+	bird.smoothed=false;
+	bird.scale.x=-1.8;
+	bird.scale.y=1.8;
+	bird.anchor.setTo(0, 0.5);
+	game.physics.arcade.enableBody(bird);
+	bird.enableBody = true;
+	}
+	bird.anchor.setTo(0, 0.5);
+	bird.reset(0,game.rnd.integerInRange(0,325)); 
+	bird.body.velocity.x = velocityX;
+	bird.checkWorldBounds = true;
+	bird.outOfBoundsKill = true;
+	}}
+//LOAD EAST AND ENTER W	
+	function playEast(){
+	jenn.visible=false;
+	loadImg("e");
+	$("#plane").fadeIn(1500);
+	showAnims = game.add.tween(anims).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
+	//anims.resetAll(game.world.randomX,game.rnd.integerInRange(0,325));
+	anims.forEach(function (animsChil,i){
+	//animsChil.position.x = game.world.randomX;
+	//animsChil.position.y = game.rnd.integerInRange(0,325);
+	animsChil.alpha = game.rnd.integerInRange(0,1);
+	//anims.resetAll(game.world.randomX,game.rnd.integerInRange(0,325));
+	//anims.resetAll(game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i],0);
+	anims.resetChild(animsChil,game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i]);
+	//animsChil.animations.play("animsChil");
+	}),this;
+	game.time.events.add(2000, enterW, this);
+	}
+	function enterW(){
+	jenn.visible=true;
+	jenn.scale.x=4;
+	jenn.scale.y=4;
+	jenn.x =100;
+	jenn.y =game.world.centerY + 200;
+	jenn.animations.play("runRi");
+	enterWest = game.add.tween(jenn).to({x:game.world.centerX-200, y:game.world.centerY+200},1500,Phaser.Easing.Linear.None, true);
+	enterWest.onComplete.addOnce(standStill,this);}
+	function standStill(){
+	jenn.animations.stop();
+	jenn.frame =0;
+	NorthButton.disabled=false; 
+	SouthButton.disabled=false;
+	EastButton.disabled=false;
+	WestButton.disabled=false;
+	}
+//LOAD W AND ENTER E	
+	function playWest(){
+	jenn.visible=false;
+	loadImg("w");
+	$("#plane").fadeIn(1500);
+	showAnims = game.add.tween(anims).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
+	anims.forEach(function (animsChil,i){
+	animsChil.alpha = game.rnd.integerInRange(0,1);
+	anims.resetChild(animsChil,game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i]);
+	}),this;
+	game.time.events.add(1000, enterE, this);}
+	function enterE(){
+	jenn.visible=true;
+	jenn.scale.x=4;
+	jenn.scale.y=4;
+	jenn.x =1280;
+	jenn.y =game.world.centerY + 200;
+	jenn.animations.play("runWe");
+	enterEast = game.add.tween(jenn).to({x:game.world.centerX+200, y:game.world.centerY+200},1500,Phaser.Easing.Linear.None, true);
+	enterEast.onComplete.addOnce(standStill2,this);}
+	function standStill2(){
+	jenn.frame = 7;
+	jenn.animations.stop();
+	NorthButton.disabled=false; 
+	SouthButton.disabled=false;
+	EastButton.disabled=false;
+	WestButton.disabled=false;
+	}
+//LOAD N AND ENTER S 	
+	function playNorth(){
+	jenn.alpha=0;
+	loadImg("n");
+	$("#plane").fadeIn(1500);
+	showAnims = game.add.tween(anims).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
+	anims.forEach(function (animsChil,i){
+	animsChil.alpha = game.rnd.integerInRange(0,1);
+	anims.resetChild(animsChil,game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i]);
+	}),this;
+	game.time.events.add(1000, enterS, this);
+	}
+	function enterS(){
+	jenn.animations.stop("runNo");
+	fadeJenn = game.add.tween(jenn).to( { alpha: 1 }, 200, Phaser.Easing.Linear.None, true);
+	jenn.scale.x=4;				
+	jenn.scale.y=4;
+	jenn.x = game.world.centerX;
+	jenn.y =650;
+	jenn.animations.add("runNoShort", [14,15,16,17],10,true);
+	jenn.animations.play("runNoShort");
+	enterSouth = game.add.tween(jenn).to({x:game.world.centerX, y:game.world.centerY+200,},500,Phaser.Easing.Linear.None, 2000);
+	enterSouth.onComplete.addOnce(standStill3,this);}
+	function standStill3(){
+	jenn.frame = 58;
+	jenn.animations.stop();
+	NorthButton.disabled=false; 
+	SouthButton.disabled=false;
+	EastButton.disabled=false;
+	WestButton.disabled=false;
+	}
+//LOAD S AND ENTER N
+	function playSouth(){
+	jenn.alpha=0;
+	jenn.position.y=20; //is this doing anything?
+	jenn.animations.stop("runSo");
+	loadImg("s");
+	$("#plane").fadeIn(2500);
+	showAnims = game.add.tween(anims).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
+	anims.forEach(function (animsChil,i){
+	animsChil.alpha = game.rnd.integerInRange(0,1);
+	anims.resetChild(animsChil,game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i]);
+	}),this;
+	game.time.events.add(1000, enterN, this);}
+	function enterN(){
+	fadeJenn = game.add.tween(jenn).to( { alpha: 1 }, 200, Phaser.Easing.Linear.None, true);
+	jenn.scale.x=4;					
+	jenn.scale.y=4;
+	jenn.x = game.world.centerX;
+	jenn.y =450;
+	jenn.animations.play("runSo");
+	enterNorth = game.add.tween(jenn).to({x:game.world.centerX, y:game.world.centerY+200, },1500,Phaser.Easing.Linear.None, 2000);
+	enterNorth.onComplete.addOnce(standStill4,this);}
+	function standStill4(){
+	jenn.frame = 59;
+	jenn.animations.stop();
+	NorthButton.disabled=false; 
+	SouthButton.disabled=false;
+	EastButton.disabled=false;
+	WestButton.disabled=false;
+	}
+
+</script>
+</body>
+</html>
