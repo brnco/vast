@@ -9,7 +9,7 @@
 
 body{
 margin:0 auto;
-background-color:white;
+background-color:black;
 }
 /*loading bar*/
 	body.pace-running:before {
@@ -81,32 +81,32 @@ body:before {
 /*plane*/
 #planeColorFader{
 	position:absolute;
-	height:720px;
-	width:1280px;
-	top:40px;left:0; right:0; 
+	height:100% - 40px;
+	width:100%;
+	bottom:40px;left:0; right:0; 
 	background-color:black;
 	}
+	
 #plane{
 	position:absolute;
-	top:40px;left:0; right:0; 
+	bottom:40px;left:0; right:0; 
 	z-index:1;
 	margin:auto;
 	width:100%;
-	max-width:1280px;
+	height:calc(100% - 40px);
+	border:5px solid red;
+	/*max-width:1280px;
 	min-width:640px;
-	/*
 	height:100%;
 	max-height:720px;
 	min-height:360px;
-	*/
-	/*
 	padding-bottom:56.25%;
+	
 	*/
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	overflow: hidden;
-	border:5px solid red;
 	image-rendering:optimizeSpeed;          	/* Legal fallback */
 	image-rendering:-moz-crisp-edges;          /* Firefox        */
 	image-rendering:-o-crisp-edges;            /* Opera          */
@@ -117,27 +117,26 @@ body:before {
 	-ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
 	}
 #plane img {
-	flex-shrink: 0;
-	width: 100%;
-	height: 100%;
+	/*height:100%;*/
+	width:100%;
 	}
 /*game div*/
 #gameDiv{
 	position:absolute;
 	margin:auto;
-	top:40px;left:0; right:0; 
+	bottom:40px;left:0; right:0; 
 	z-index:2;
 	width:100%;
-	max-width:1280px;
-	min-width:640px;
-	
-	padding-bottom:56.25%;
-	
+	height:calc(100% - 40px);
 	overflow: hidden;
 	border:5px solid magenta;
+	/*max-width:1280px;
+	min-width:640px;
+	padding-bottom:56.25%;
+	*/
 	}
 /*SIZING WORK*/
-#containerAll{
+/*#containerAll{
 	position:absolute;
 	margin:auto;
 	top:0px; left:0; right:0; 
@@ -147,9 +146,9 @@ body:before {
 	overflow: hidden;
 	border:5px solid green;
 	}
-
+*/
 /*font import*/
-	@font-face{
+@font-face{
 	font-family: IBMFont;
 	src: url(rooms/font/Px437_IBM_ISO9.ttf);
 	}
@@ -159,8 +158,9 @@ body:before {
 	margin:auto;
 	left:0;right:0; 
 	border:2px solid orange;
-	top:800px;
-	width:1280px;
+	bottom:0px;
+	width:100%;
+	margin:0 auto;
 	}
 	#east {
 	font-family: IBMFont;
@@ -594,7 +594,8 @@ body:before {
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;	
 	game.scale.minWidth= 640;
 	game.scale.minHeight=360;
-
+	sc_image=game.width;
+	sc_image=game.height;
 
 //JENN
 	jenn = game.add.sprite(game.world.centerX,game.world.centerY+200,"jenRun");
