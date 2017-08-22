@@ -9,7 +9,7 @@
 
 body{
 margin:0 auto;
-background-color:black;
+background-color:white;
 }
 /*loading bar*/
 	body.pace-running:before {
@@ -83,20 +83,30 @@ body:before {
 	position:absolute;
 	height:720px;
 	width:1280px;
-	left:0;
-	top:0;
+	top:40px;left:0; right:0; 
 	background-color:black;
 	}
 #plane{
 	position:absolute;
-	top:0;
+	top:40px;left:0; right:0; 
 	z-index:1;
-	height:720px;
-	width:1280px;
+	margin:auto;
+	width:100%;
+	max-width:1280px;
+	min-width:640px;
+	/*
+	height:100%;
+	max-height:720px;
+	min-height:360px;
+	*/
+	/*
+	padding-bottom:56.25%;
+	*/
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	overflow: hidden;
+	border:5px solid red;
 	image-rendering:optimizeSpeed;          	/* Legal fallback */
 	image-rendering:-moz-crisp-edges;          /* Firefox        */
 	image-rendering:-o-crisp-edges;            /* Opera          */
@@ -110,13 +120,38 @@ body:before {
 	flex-shrink: 0;
 	min-width: 100%;
 	min-height: 100%;
+	/*position: absolute;
+	left: -100%;
+	right: -100%;
+	top: -100%;
+	bottom: -100%;*/
 	}
 /*game div*/
-	#gameDiv{
+#gameDiv{
 	position:absolute;
+	margin:auto;
+	top:40px;left:0; right:0; 
 	z-index:2;
+	width:100%;
+	max-width:1280px;
+	min-width:640px;
+	
+	padding-bottom:56.25%;
+	
+	overflow: hidden;
+	border:2px solid magenta;
 	}
 /*SIZING WORK*/
+#containerAll{
+	position:absolute;
+	margin:auto;
+	top:0px; left:0; right:0; 
+	z-index:1;
+	height:100vh;
+	width:100vw;
+	overflow: hidden;
+	border:5px solid green;
+	}
 
 /*font import*/
 	@font-face{
@@ -125,8 +160,11 @@ body:before {
 	}
 /*buttons*/
 	#buttonContain{
-	position:relative;
-	top:760px;
+	position:absolute;
+	margin:auto;
+	left:0;right:0; 
+	border:2px solid orange;
+	top:800px;
 	width:1280px;
 	}
 	#east {
@@ -291,7 +329,7 @@ body:before {
 			var direction = sourceImagesObj[startImg][directionIndexFromStartImg];
 			var output = false;
 			while (output == false){
-				var neighborIndex = Math.floor(Math.random() * 220) + 1;
+				var neighborIndex = Math.floor(Math.random() * 220) + 10;
 				output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, neighborhood, theMap);
 			};
 			var neighbor = vast(neighborIndex);
@@ -309,7 +347,7 @@ body:before {
 	var output = false; //init
 	count = 0; //init
 	while (output == false && count < 30){
-		var neighborNumber = Math.floor(Math.random() *220) + 1; //generate 123 part of vast123
+		var neighborNumber = Math.floor(Math.random() * 220) + 10; //generate 123 part of vast123
 		output = nextChecker(sourceImagesObj,home, directionToNewNeighbor, neighborNumber, oppositeDirection, neighborhood, theMap); //make sure we can use this vast123
 		count = count + 1;
 	}
@@ -462,17 +500,8 @@ body:before {
 	
 	//make a random starting img
 	//var imgObjKeys = Object.keys(sourceImagesObj);
-	var output = false;
-	while (output == false){
-		var startImgIndex = Math.floor(Math.random() * 220) + 1;
-		var startImg = vast(startImgIndex);
-		if (sourceImagesObj[startImg].length < 2){
-			output = false;
-		} else {
-			output = true;
-		}
-	}	
-	
+	var startImgIndex = Math.floor(Math.random() * 220) + 10;
+	var startImg = vast(startImgIndex);
 	setImg(startImg);
 
 	//assign init image to plane
@@ -538,7 +567,7 @@ body:before {
 //Game
 	var game = new Phaser.Game(1280, 720, Phaser.CANVAS, 'gameDiv', { preload: preload, create: create, update: update}, true);
 	function preload(){
-	game.load.spritesheet("jenRun","rooms/jennRun.png",32,61);
+	game.load.spritesheet("jennRun1","rooms/jennRun1.png",32,61);
 	game.load.image("RightBorder","rooms/RightBorder.png");
 	game.load.image("TopBorder","rooms/TopBorder.png");
 	game.load.spritesheet("anim1","rooms/anim1.png",116,109);
@@ -567,9 +596,13 @@ body:before {
 	function create(){
 	game.physics.startSystem(Phaser.Physics.ARCADE);	
 	game.world.setBounds(0,0, 1280,720);
+	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;	
+	game.scale.minWidth= 640;
+	game.scale.minHeight=360;
+
 
 //JENN
-	jenn = game.add.sprite(game.world.centerX,game.world.centerY+200,"jenRun");
+	jenn = game.add.sprite(game.world.centerX,game.world.centerY+200,"jennRun1");
 	jenn.smoothed=false;
 	jenn.scale.x=4;
 	jenn.scale.y=4;
