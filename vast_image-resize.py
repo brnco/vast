@@ -1,8 +1,8 @@
 from PIL import Image
 import os
 
-for f in os.listdir("S:/avlab/vast/images"):
-	fullf = os.path.join("S:/avlab/vast/images",f)
+for f in os.listdir("/Volumes/thedata/developments/vast/images"):
+	fullf = os.path.join("/Volumes/thedata/developments/vast/images",f)
 	print f
 	im = Image.open(fullf)
 	w,h = im.size
@@ -34,8 +34,8 @@ for f in os.listdir("S:/avlab/vast/images"):
 			print "cropr " + str(cropr)
 			croprect = (cropl,0,w - cropr,h) 
 			print croprect
-			img = im.crop(croprect)
-			img.save(os.path.join("S:/avlab/vast/images_edited",f))
+			#img = im.crop(croprect)
+			#img.save(os.path.join("S:/avlab/vast/images_edited",f))
 		elif nw > w:
 			print "old dims"
 			print str(w) + "x" + str(h)
@@ -61,8 +61,8 @@ for f in os.listdir("S:/avlab/vast/images"):
 			print "cropbtm " + str(cropbtm)
 			croprect = (0,croptop,w,h-cropbtm)
 			print croprect
-			img = im.crop(croprect)
-			img.save(os.path.join("S:/avlab/vast/images_edited",f))
+			#img = im.crop(croprect)
+			#img.save(os.path.join("S:/avlab/vast/images_edited",f))
 		print ""
 	
 '''print "current ar " + str(ar)
