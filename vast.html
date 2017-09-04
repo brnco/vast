@@ -131,9 +131,9 @@ body:before {
 	src: url(rooms/font/Px437_IBM_ISO9.ttf);
 	}
 /*buttons*/
-#buttonsContain2{
+#buttonsContain{
 	position:absolute;
-	top:0px;left:0; right:0;
+	left:0;right:0;
 	z-index:5;
 	margin:auto;
 	width:100%;
@@ -145,6 +145,7 @@ body:before {
 	border:3px solid magenta;
 	border-radius: 25px;
 	overflow: hidden;
+	visibility: hidden;
 	image-rendering:optimizeSpeed;          	/* Legal fallback */
 	image-rendering:-moz-crisp-edges;          /* Firefox        */
 	image-rendering:-o-crisp-edges;            /* Opera          */
@@ -154,14 +155,14 @@ body:before {
 	image-rendering:pixelated;                 /* CSS4 Proposed  */
 	-ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
 	}
-	#buttonContain{
+#buttonContain{
 	position:absolute;
 	margin:auto;
 	left:0;right:0; 
 	top:800px;
 	width:1280px;
 	}
-	#east {
+#east {
 	font-family: IBMFont;
 	font-size: 16px;
 	font-weight: bold;
@@ -169,16 +170,16 @@ body:before {
 	color:white;
 	border-radius:8px;
 	}
-	#east:hover{
+#east:hover{
 	background-color:pink;
 	}
-	#east:disabled{
+#east:disabled{
 	opacity:0.6;
 	}
-	#east:disabled:hover{
+#east:disabled:hover{
 	background-color:black;
 	}
-	#west {
+#west {
 	font-family: IBMFont;
 	font-size: 16px;
 	font-weight: bold;
@@ -186,16 +187,16 @@ body:before {
 	color:white;
 	border-radius:8px;
 	}
-	#west:hover{
+#west:hover{
 	background-color:pink;
 	}
-	#west:disabled{
+#west:disabled{
 	opacity:0.6;
 	}
-	#west:disabled:hover{
+#west:disabled:hover{
 	background-color:black;
 	}
-	#south {
+#south {
 	font-family: IBMFont;
 	font-size: 16px;
 	font-weight: bold;
@@ -203,16 +204,16 @@ body:before {
 	color:white;
 	border-radius:8px;
 	}
-	#south:hover{
+#south:hover{
 	background-color:pink;
 	}
-	#south:disabled{
+#south:disabled{
 	opacity:0.6;
 	}
-	#south:disabled:hover{
+#south:disabled:hover{
 	background-color:black;
 	}
-	#north {
+#north {
 	font-family: IBMFont;
 	font-size: 16px;
 	font-weight: bold;
@@ -220,17 +221,17 @@ body:before {
 	color:white;
 	border-radius:8px;
 	}
-	#north:hover{
+#north:hover{
 	background-color:pink;
 	}
-	#north:disabled{
+#north:disabled{
 	opacity:0.6;
 	}
-	#north:disabled:hover{
+#north:disabled:hover{
 	background-color:black;
 	}
 /*border*/
-	#borders{
+#borders{
 	position:absolute;
 	top:0;
 	left:0;
@@ -245,7 +246,7 @@ body:before {
 <body>
 <div id="gameDiv"></div>
 <div id="plane"></div>
-<div id="buttonsContain2">
+<div id="buttonsContain">
 <center>
 <input id="north" type="button" value="north" style="visibility:hidden;" onclick="loadImg('n')"/>
 <input id="south" type="button" value="south" style="visibility:hidden;" onclick="loadImg('s')"/>
@@ -883,8 +884,17 @@ body:before {
 
 </script>
 <script>
-console.log($('#plane').height());
-console.log($('#plane').offset().top);
+$(window).load(function(){
+	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
+	$('#buttonsContain').css({"top":totalBottom + "px","visibility":"visible"});
+	console.log($('#plane').height());
+	console.log($('#plane').offset().top);
+});
+$(window).resize(function(){
+	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
+	$('#buttonsContain').css("top",totalBottom + "px");
+});
+
 </script>
 </body>
 </html>
