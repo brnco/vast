@@ -94,19 +94,12 @@ body:before {
 	width:100%;
 	max-width:1280px;
 	min-width:640px;
-	/*
-	height:100%;
-	max-height:720px;
-	min-height:360px;
-	*/
-	/*
-	padding-bottom:56.25%;
-	*/
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	border:3px solid magenta;
+	border-radius: 25px;
 	overflow: hidden;
-	border:5px solid red;
 	image-rendering:optimizeSpeed;          	/* Legal fallback */
 	image-rendering:-moz-crisp-edges;          /* Firefox        */
 	image-rendering:-o-crisp-edges;            /* Opera          */
@@ -131,20 +124,40 @@ body:before {
 	max-width:1280px;
 	min-width:640px;
 	overflow: hidden;
-	border:5px solid magenta;
 	}
-
 /*font import*/
 	@font-face{
 	font-family: IBMFont;
 	src: url(rooms/font/Px437_IBM_ISO9.ttf);
 	}
 /*buttons*/
+#buttonsContain2{
+	position:absolute;
+	top:0px;left:0; right:0;
+	z-index:5;
+	margin:auto;
+	width:100%;
+	max-width:1280px;
+	min-width:640px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border:3px solid magenta;
+	border-radius: 25px;
+	overflow: hidden;
+	image-rendering:optimizeSpeed;          	/* Legal fallback */
+	image-rendering:-moz-crisp-edges;          /* Firefox        */
+	image-rendering:-o-crisp-edges;            /* Opera          */
+	image-rendering:-webkit-optimize-contrast; /* Safari         */
+	image-rendering:optimize-contrast;         /* CSS3 Proposed  */
+	image-rendering:crisp-edges;               /* CSS4 Proposed  */
+	image-rendering:pixelated;                 /* CSS4 Proposed  */
+	-ms-interpolation-mode:nearest-neighbor;   /* IE8+           */
+	}
 	#buttonContain{
 	position:absolute;
 	margin:auto;
 	left:0;right:0; 
-	border:2px solid orange;
 	top:800px;
 	width:1280px;
 	}
@@ -232,7 +245,7 @@ body:before {
 <body>
 <div id="gameDiv"></div>
 <div id="plane"></div>
-<div id="buttonContain">
+<div id="buttonsContain2">
 <center>
 <input id="north" type="button" value="north" style="visibility:hidden;" onclick="loadImg('n')"/>
 <input id="south" type="button" value="south" style="visibility:hidden;" onclick="loadImg('s')"/>
@@ -240,6 +253,7 @@ body:before {
 <input id="east" type="button" value="east" style="visibility:hidden;" onclick="loadImg('e')"/>
 </center>
 </div>
+
 <script>
 
 	/*
@@ -309,7 +323,7 @@ body:before {
 			var direction = sourceImagesObj[startImg][directionIndexFromStartImg];
 			var output = false;
 			while (output == false){
-				var neighborIndex = Math.floor(Math.random() * 220) + 1;
+				var neighborIndex = Math.floor(Math.random() * 238) + 1;
 				output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, neighborhood, theMap);
 			};
 			var neighbor = vast(neighborIndex);
@@ -327,7 +341,7 @@ body:before {
 	var output = false; //init
 	count = 0; //init
 	while (output == false && count < 30){
-		var neighborNumber = Math.floor(Math.random() * 220) + 1; //generate 123 part of vast123
+		var neighborNumber = Math.floor(Math.random() * 238) + 1; //generate 123 part of vast123
 		output = nextChecker(sourceImagesObj,home, directionToNewNeighbor, neighborNumber, oppositeDirection, neighborhood, theMap); //make sure we can use this vast123
 		count = count + 1;
 	}
@@ -480,7 +494,7 @@ body:before {
 	
 	//make a random starting img
 	//var imgObjKeys = Object.keys(sourceImagesObj);
-	var startImgIndex = Math.floor(Math.random() * 220) + 1;
+	var startImgIndex = Math.floor(Math.random() * 238) + 1;
 	var startImg = vast(startImgIndex);
 	setImg(startImg);
 
@@ -571,7 +585,6 @@ body:before {
 	game.load.spritesheet("anim18","rooms/anim18.png",44,29);
 	game.load.spritesheet("anim19","rooms/anim19.png",44,29);
 	game.load.image("background1","rooms/background1.png");
-
 	}
 	function create(){
 	game.physics.startSystem(Phaser.Physics.ARCADE);	
@@ -579,9 +592,6 @@ body:before {
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;	
 	game.scale.minWidth= 640;
 	game.scale.minHeight=360;
-
-
-//JENN
 	jenn = game.add.sprite(game.world.centerX,game.world.centerY+200,"jennRun1");
 	jenn.smoothed=false;
 	jenn.scale.x=4;
@@ -602,7 +612,6 @@ body:before {
 	anims = game.add.group();
 	allSprites = 
 	['anim1','anim2','anim3','anim4','anim5','anim6','anim7','anim8','anim9','anim10','anim11','anim12','anim13','anim14','anim15','anim16','anim17','anim18','anim19'];
-	
 	//moveEm = function (){
 	for (var i = 0; i < 19; i++)
     {
@@ -872,6 +881,10 @@ body:before {
 	WestButton.disabled=false;
 	}
 
+</script>
+<script>
+console.log($('#plane').height());
+console.log($('#plane').offset().top);
 </script>
 </body>
 </html>
