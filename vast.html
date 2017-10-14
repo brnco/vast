@@ -497,7 +497,7 @@ $( "#p2Back" ).click(function() {
 		$('#plane').empty();
 	if (Vast.theMap[currentImg] != null){
 		newImg = Vast.theMap[currentImg][directionTo];
-		console.log("newImg = " + newImg);
+		//console.log("newImg = " + newImg);
 		setImg(newImg);
 		setTimeout(function(){
 			loadButtons(newImg);
@@ -546,7 +546,7 @@ $( "#p2Back" ).click(function() {
 	neighborhood = setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap);
 	theMap[startImg] = neighborhood;
 	var diff = Object.keys(theMap)
-	console.log(theMap);
+	//console.log(theMap);
 	/*
 	fill the map
 	starts with the diff of the previous map and the current map
@@ -609,6 +609,33 @@ $( "#p2Back" ).click(function() {
 	game.scale.minWidth= 640;
 	game.scale.minHeight=360;
 	jenn = game.add.sprite(game.world.centerX,game.world.centerY+200,"jennRun1");
+	var startFacingObj = (function() {
+		var startFacingObj = null;
+		$.ajax({
+			'async': false,
+			'global': false,
+			'url': "startfacing.json",
+			'dataType': "json",
+			'success': function (data) {
+				json = data;
+			}
+		});
+		return json;
+	})();
+	var currentImg = $('#plane').children("img").prop('src');
+	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
+	var result = myRe.exec(currentImg); //run that pattern against the url
+	var currentImg = result[0];
+	var faceDirection = startFacingObj[currentImg];
+	if (faceDirection == "n"){
+		jenn.frame=58;
+	} else if (faceDirection == "s"){
+		jenn.frame=59;
+	} else if (faceDirection == "e"){
+		jenn.frame=0;
+	} else if (faceDirection == "w"){
+		jenn.frame=7;
+	};
 	jenn.smoothed=false;
 	jenn.scale.x=4;
 	jenn.scale.y=4;
@@ -1119,8 +1146,9 @@ $( "#p2Back" ).click(function() {
 $(window).load(function(){
 	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
 	$('#buttonsContain').css({"top":totalBottom + "px","visibility":"visible"});
-	console.log($('#plane').height());
-	console.log($('#plane').offset().top);});
+	//onsole.log($('#plane').height());
+	//console.log($('#plane').offset().top);
+});
 $(window).resize(function(){
 	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
 	$('#buttonsContain').css("top",totalBottom + "px");});
