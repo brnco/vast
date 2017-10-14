@@ -1,12 +1,21 @@
 <!DOCTYPE html>
     <head>
+	<script>
+	paceOptions = {
+	ajax: false, // disabled
+	document: false, // disabled
+	eventLag: false, // disabled
+	elements: {
+	selectors: ['#bang']
+	}
+	};
+	</script>
+		<script src="/pace/pace.js"></script>
         <meta charset="UTF-8" />
         <script src="js/phaser.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-		<script src="/pace/pace.js"></script>
     </head>
 <style>
-
 body{
 margin:0 auto;
 background-color:black;
@@ -142,8 +151,6 @@ body:before {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	border:3px solid magenta;
-	border-radius: 25px;
 	overflow: hidden;
 	visibility: hidden;
 	image-rendering:optimizeSpeed;          	/* Legal fallback */
@@ -241,9 +248,73 @@ body:before {
 	height:720px;
 	z-index:99;
 }
+@font-face{
+	font-family: IBMFont;
+	src: url(font/Px437_IBM_ISO9.ttf);
+	}
+* { Box-sizing: Border-box }
+.containerHelp {
+  float: right;
+  z-index:999;
+}
+.easy1{
+	background-color: transparent;
+	width:25px;
+	z-index:500;
+	right:10px;
+	top:10px;
+	position:absolute;
+}
+.easy1:hover{
+	background-color: pink;
+	 z-index:500;
+}
+#p1Next{
+	border:none;
+	background-color:transparent;
+	font-size:16px;
+	font-family: IBMFont;
+	color:magenta;
+	z-index:500;
+}
+.easy2{
+	position:absolute;
+	display: none;
+	padding: 10px;
+	background-color: black;
+	border:1px solid magenta;
+	width:200px;
+	font-family: IBMFont;
+	color:white;
+	border-radius:6px;
+	right:10px;
+	z-index:500;
+	top:10px;
+}
+#p2Back{
+	border:none;
+	background-color:magenta;
+	font-size:16px;
+	font-family: IBMFont;
+	color:black;
+	z-index:500;
+}
 </style>
-
 <body>
+<div class="containerHelp">
+<div class="easy1"><input id="p1Next" type="button" value="?"></div>
+<div class="easy2">Navigate this strange place as best you can.<br><br><input id="p2Back" type="button" value="> Back"></div>
+</div>
+<script>
+$( "#p1Next" ).click(function() {
+	$('.easy1').slideToggle(500);
+	$('.easy2').slideToggle(500);
+});
+$( "#p2Back" ).click(function() {
+	$('.easy1').slideToggle(500);
+	$('.easy2').slideToggle(500);
+});
+</script>
 <div id="gameDiv"></div>
 <div id="plane"></div>
 <div id="buttonsContain">
@@ -254,47 +325,28 @@ body:before {
 <input id="east" type="button" value="east" style="visibility:hidden;" onclick="loadImg('e')"/>
 </center>
 </div>
-
 <script>
-
 	/*
 	vast
 	*/
 	function vast(number){
 		return "vast" + number.toString();
 	}
-	/*
-	setImage
-
-	puts a new image on the page
-	//$('#plane').css("background-image","url(" + imgpath+ ")");
-	//$('#plane').load(imgpath + ' #plane');
-	*/
 	function setImg(img){
 		var rootContext = "/vast"; //path context for generating paths to the images
 		var imgpath = rootContext + '/images/' + img + '.png';
 		var image = new Image();
 		image.src = imgpath;
 		image.onload = function() {
-			$('#plane').empty().append(image);
+			$('#plane').append(image);
 		}
 	}
-	/*
-	nextChecker
-	takes input vastNum and figues out if it's eligible to add to the neighborhood
-	vastNum is eligible if:
-	1) it is not already assigned to the directionTo another vastNumber in themap
-	2) not the first tile
-	3) that it can link back to its potential neighbor
-	*/
-	//function nextChecker(sourceImagesObj, vastNumKey, direction, neighborIndex, oppositeDirection, neighborhood, theMap){
-	//
 	function nextChecker(sourceImagesObj,home,directionToNewNeighbor,neighborNumber,oppositeDirection,neighborhood,theMap){
 	var proposedNewNeighbor = vast(neighborNumber); //convert supplied random 123 number to vast123
 	for (var vnk in theMap){ //loop thru the vast number keys (vnk = "vast123","vast124",etc) in theMap
 		var vnkNeighbor = theMap[vnk][directionToNewNeighbor]; //neighbor at a direction
 		var vnkOppNeighbor = theMap[vnk][oppositeDirection[directionToNewNeighbor]]; //neighbor at opposite direction
-		//if neighbor at direction == supplied random vastNum or if neighbor at opposite direction (need to link back)
+	//if neighbor at direction == supplied random vastNum or if neighbor at opposite direction (need to link back)
 		if (vnkNeighbor == proposedNewNeighbor || vnkOppNeighbor == proposedNewNeighbor){
 			return false;
 		}
@@ -314,7 +366,6 @@ body:before {
 	}
 	/*
 	setStartObj
-	
 	creates an initial {"n":"vast123","s":"vast45"} object
 	see makeNeighbor for comments
 	*/
@@ -334,10 +385,8 @@ body:before {
 	}
 	/*
 	makeNeighbor
-
 	returns a vastNum for supplied direction based on rules
 	*/
-	//function makeNeighbor(sourceImagesObj,home,DIR,oppositeDirection,directionFromHome,neighborAtDirectionFromHome,neighborhood,theMap){
 	function makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighbor,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap){
 	var output = false; //init
 	count = 0; //init
@@ -356,7 +405,6 @@ body:before {
 	}
 	/*
 	addNeighborhoodsToTheMap
-
 	loops thru diff, grips neighbors at each directions
 	for each neighbor at each direction
 	loops through directions available to neighbor
@@ -408,11 +456,7 @@ body:before {
 	loads the bottons with every new image
 	toggles button visibility based on the image's available directions in the map
 	*/
-	function loadButtons(){
-	var currentImg = $('#plane').children("img").prop('src');
-	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
-	var result = myRe.exec(currentImg); //run that pattern against the url
-	var vastImg = result[0]; //get first index of object returned by regex = vast123
+	function loadButtons(vastImg){
 	var vastImgDirsObj = Vast.theMap[vastImg]; //get the vastNum object from theMap vast123{"n":"vast124","s":"vast125"}
 	vastImgDirs = Object.keys(vastImgDirsObj); //get just a list of the directions ["n","s","e","w"]
 	if (Vast.theMap[vastImg]["n"]){
@@ -439,7 +483,6 @@ body:before {
 	}
 	/*
 	loadImg
-
 	loads a new image to #plane on input of a button
 	new image loaded corresponds to direction pressed by
 	button, "north" "south" "east" "west"
@@ -451,17 +494,18 @@ body:before {
 	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
 	var result = myRe.exec(currentImg); //run that pattern against the url
 	var currentImg = result[0];
+		$('#plane').empty();
 	if (Vast.theMap[currentImg] != null){
 		newImg = Vast.theMap[currentImg][directionTo];
+		console.log("newImg = " + newImg);
 		setImg(newImg);
 		setTimeout(function(){
-			loadButtons();
+			loadButtons(newImg);
 		},100)
 	}
 	}
 	//init namespace object to store global theMap and oppositeDirection objects
 	var Vast = {};
-
 	$(document).ready(function(){
 	/*
 	init
@@ -482,7 +526,6 @@ body:before {
 		});
 		return json;
 	})();
-
 	//init array for opposite_direction values
 	var oppositeDirection = {
 		"n":"s",
@@ -492,35 +535,10 @@ body:before {
 	}
 	//assign to global namespace object
 	Vast.oppositeDirection = oppositeDirection;
-	
 	//make a random starting img
-	//var imgObjKeys = Object.keys(sourceImagesObj);
 	var startImgIndex = Math.floor(Math.random() * 238) + 1;
 	var startImg = vast(startImgIndex);
 	setImg(startImg);
-
-	//assign init image to plane
-	//$('#plane').css({
-	//	height:"300px",
-	//	width:"300px",
-	//	backgroundRepeat: "no-repeat",
-	//	backgroundSize:"cover",
-	//	backgroundColor:"blue"
-		//backgroundSize:"320px 190px"
-	//});
-	//$('#north').css({
-	//	top:"800px",
-	//});
-	//	$('#south').css({
-	//	top:"800px",
-	//});
-	//	$('#east').css({
-	//	top:"800px",
-	//	
-	//});
-	//	$('#west').css({
-	//	top:"800px",
-	//});
 	//init map stuff
 	var theMap = {};
 	var a = Object.keys(theMap);
@@ -539,27 +557,21 @@ body:before {
 		theMap = addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection);
 		var diff = Object.keys(theMap).filter(function(x) { return a.indexOf(x) < 0});
 	}
-	//console.log(theMap);
 	//assign the completed theMap to the global namespace object
 	Vast.theMap = theMap;
-	
 	//breathe, then load the buttons
 	setTimeout(function(){
-	loadButtons();
+	loadButtons(startImg);
 	},2000);
 	});	
 </script>
 </div>
-<script>		
-//ENTER THE PHAAASER
-	
-//Define the buttons
+
+<script>	
 	var NorthButton = document.getElementById('north');
 	var EastButton = document.getElementById('east');
 	var WestButton = document.getElementById('west');
 	var SouthButton = document.getElementById('south');
-
-//Game
 	var game = new Phaser.Game(1280, 720, Phaser.CANVAS, 'gameDiv', { preload: preload, create: create, update: update}, true);
 	function preload(){
 	game.load.spritesheet("jennRun1","rooms/jennRun1.png",32,61);
@@ -586,8 +598,11 @@ body:before {
 	game.load.spritesheet("anim18","rooms/anim18.png",44,29);
 	game.load.spritesheet("anim19","rooms/anim19.png",44,29);
 	game.load.image("background1","rooms/background1.png");
+	game.load.spritesheet("jennBox","rooms/jennBox.png",72,55);
+	game.load.spritesheet("jennboxonly","rooms/jennboxonly.png",72,55);
 	}
 	function create(){
+	$("body").append("<div id='bang'></div>");
 	game.physics.startSystem(Phaser.Physics.ARCADE);	
 	game.world.setBounds(0,0, 1280,720);
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;	
@@ -610,30 +625,27 @@ body:before {
 	}),this;
 	*/
 //OBJECTS
+	secret = game.add.group();
+	for (var i = 0; i < 1; i++)
+    {
+	secretChild = secret.create(game.rnd.integerInRange(540,950), game.rnd.integerInRange(570,580),"jennboxonly");
+	secretChild.smoothed=false;
+	secretChild.scale.x=5;
+	secretChild.scale.y=5;
+	secretChild.anchor.setTo(0.5,0.5);
+	secretChild.animations.add("secretChild",[],10,false);
+	secretChild.alpha = 0;
+	}
 	anims = game.add.group();
 	allSprites = 
 	['anim1','anim2','anim3','anim4','anim5','anim6','anim7','anim8','anim9','anim10','anim11','anim12','anim13','anim14','anim15','anim16','anim17','anim18','anim19'];
-	//moveEm = function (){
 	for (var i = 0; i < 19; i++)
     {
-	//anims.create(game.world.randomX, game.rnd.integerInRange(265,400), 'anim1');
-	//anims.create(game.world.randomX, game.rnd.integerInRange(265,400), 'anim2');
-	//anims.create(game.world.randomX, game.rnd.integerInRange(265,400), 'anim3');
-	//anims.create(game.world.randomX, game.rnd.integerInRange(265,400), 'anim4');
-	//anims.callAll("animations.add","animations","anims",[], 10, true);
-	//anims.callAll("animations.play","animations","anims");
-	//anims.setAll("smoothed",false);
 	animsChil = anims.create(game.world.randomX, game.rnd.integerInRange(0,300), allSprites[i]);
 	animsChil.animations.add("animsChil", [],10,true);
 	animsChil.animations.play("animsChil");
 	animsChil.alpha = game.rnd.integerInRange(0,1);
 	}
-	//borders = game.add.sprite(0,-60,"background1");
-	//borders.smoothed=false;
-	
-
-	//}
-	//moveEm();
 //Borders
 	RightBorder = game.add.sprite(1400,0,"RightBorder"); //offscreen
 	game.physics.arcade.enable(RightBorder);
@@ -661,23 +673,19 @@ body:before {
 	BottomBorder.visible=false;
 //MOVE JENN
 //BUTTON FUNCTION MOVE ON CLICK
-
 //EAST
 	EastButton.onclick = function moveJennEast(){ 
 	NorthButton.disabled=true; //deactivate all other buttons once one is clicked
 	SouthButton.disabled=true;
 	EastButton.disabled=true;
 	WestButton.disabled=true;
+	secretChild.inputEnabled=false;
 	jenn.animations.add("runRi",[1,2,3,4,5,6],10,true);
 	jenn.animations.play("runRi");
 	jenn.body.velocity.x=300; //  5/20   NEED TO CHANGE TO TWEEN?
 	$("#plane").fadeOut(1500);
 	fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
-	//fadeAnims.onComplete.add(destroyEm,this);
-	//function destroyEm(animsChil){
-	//animsChil.kill();
-	//}
-	//game.camera.fade('#0000ff');
+	fadeBox = game.add.tween(secret).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
 	};
 //WEST
 	WestButton.onclick = function moveJennWest(){
@@ -685,11 +693,13 @@ body:before {
 	SouthButton.disabled=true;
 	EastButton.disabled=true;
 	WestButton.disabled=true;
+	secretChild.inputEnabled=false;
 	jenn.animations.add("runWe",[8,9,10,11,12,13],10,true);
 	jenn.animations.play("runWe");
 	jenn.body.velocity.x=-300;
 	$("#plane").fadeOut(1500);
 	fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+	fadeBox = game.add.tween(secret).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
 	};
 //NORTH
 	NorthButton.onclick = function moveJennNorth(){
@@ -697,11 +707,13 @@ body:before {
 	SouthButton.disabled=true;
 	EastButton.disabled=true;
 	WestButton.disabled=true;
+	secretChild.inputEnabled=false;
 	jenn.animations.add("runNo",[14,15,16,17,18,19,20,21,22,23,24,25,26,29,30,31,32,33,34,35,60,61,62,63,64,65,66,67,68,69],10,true);
 	jenn.animations.play("runNo");
 	jenn.body.velocity.y=-100;
 	$("#plane").fadeOut(1200);
 	fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+	fadeBox = game.add.tween(secret).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
 	fadeJenn = game.add.tween(jenn).to( { alpha: 0 }, 100, Phaser.Easing.Linear.None,true,1500);
 	}
 //SOUTH
@@ -710,6 +722,7 @@ body:before {
 	SouthButton.disabled=true;
 	EastButton.disabled=true;
 	WestButton.disabled=true;
+	secretChild.inputEnabled=false;
 	jenn.scale.x=5.7; //appear to move forward
 	jenn.scale.y=5.7;
 	jenn.animations.add("runSo",[36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,69,70,71,72,73,74],10,false);
@@ -717,6 +730,7 @@ body:before {
 	jenn.body.velocity.y=50;
 	$("#plane").fadeOut(1200);
 	fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+	fadeBox = game.add.tween(secret).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
 	fadeJenn = game.add.tween(jenn).to( { alpha: 0 }, 100, Phaser.Easing.Linear.None,true,1500);
 	}
 //Bird Group
@@ -761,18 +775,68 @@ body:before {
 	function playEast(){
 	jenn.visible=false;
 	loadImg("e");
-	$("#plane").fadeIn(1500);
 	showAnims = game.add.tween(anims).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
-	//anims.resetAll(game.world.randomX,game.rnd.integerInRange(0,325));
 	anims.forEach(function (animsChil,i){
-	//animsChil.position.x = game.world.randomX;
-	//animsChil.position.y = game.rnd.integerInRange(0,325);
 	animsChil.alpha = game.rnd.integerInRange(0,1);
-	//anims.resetAll(game.world.randomX,game.rnd.integerInRange(0,325));
-	//anims.resetAll(game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i],0);
 	anims.resetChild(animsChil,game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i]);
-	//animsChil.animations.play("animsChil");
 	}),this;
+//box anim
+	showBox = game.add.tween(secret).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
+	secret.forEach(function (secretChild){
+		secretChild.alpha = game.rnd.integerInRange(0,10);
+		//secretChild.alpha = 1;
+		secret.resetChild(secretChild,game.rnd.integerInRange(540,950), game.rnd.integerInRange(570,580),"jennboxonly");
+		if (secretChild.alpha == 1){
+			secretChild.inputEnabled=true;
+			secretChild.events.onInputDown.add(function fadeSecret(){
+				NorthButton.disabled=true;
+				SouthButton.disabled=true;
+				EastButton.disabled=true;
+				WestButton.disabled=true;	
+				$("#buttonsContain").fadeOut(1200);					
+				$("#plane").fadeOut(1200);
+				$("#p1Next").fadeOut(1200);
+				fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+				fadeJenn = game.add.tween(jenn).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true,100);
+				jennBoxSprite = game.add.sprite(secretChild.position.x,secretChild.position.y,"jennBox");
+				jennBoxSprite.alpha=0;
+				jennBoxSprite.smoothed=false;
+				jennBoxSprite.scale.x=5;
+				jennBoxSprite.scale.y=5;
+				jennBoxSprite.anchor.setTo(0.5,0.5);
+				secretChild.inputEnabled=false;
+				fadeAnims.onComplete.add(function (playBox){
+						game.time.events.add(500, playBox2, this);
+						function playBox2(){
+							fadeJennBoxIn = game.add.tween(jennBoxSprite).to( { alpha: 1 }, 1000, Phaser.Easing.Linear.None, true);
+							fadeJennBoxIn.onComplete.add(function (playJennBox){
+								secretChild.kill();
+								game.time.events.remove(birdGGen);
+									game.time.events.add(1000, playBox3, this);
+									function playBox3(){
+									jennBoxSprite.animations.add("jennBoxSprite",[],5,false);
+									secretAnim =jennBoxSprite.animations.play("jennBoxSprite",[],5,false);
+									secretAnim.onComplete.add(function (fadeBox){
+										fadeBoxTween = game.add.tween(jennBoxSprite).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
+										fadeBoxTween.onComplete.add(function (exitScene){
+											window.location = "www.google.com";
+											}),this;
+								
+										}),this;
+									}	
+							}),this;		
+						}		
+				}),this;
+			}),this;
+												
+		}
+		else{
+		secretChild.alpha =0;
+		secretChild.inputEnabled=false;
+		secretChild.kill();
+		}
+	});	 
+	$("#plane").fadeIn(1500);
 	game.time.events.add(2000, enterW, this);
 	}
 	function enterW(){
@@ -796,12 +860,68 @@ body:before {
 	function playWest(){
 	jenn.visible=false;
 	loadImg("w");
-	$("#plane").fadeIn(1500);
 	showAnims = game.add.tween(anims).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
 	anims.forEach(function (animsChil,i){
 	animsChil.alpha = game.rnd.integerInRange(0,1);
 	anims.resetChild(animsChil,game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i]);
 	}),this;
+//box anim
+	showBox = game.add.tween(secret).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
+	secret.forEach(function (secretChild){
+		secretChild.alpha = game.rnd.integerInRange(0,10);
+		//secretChild.alpha = 1;
+		secret.resetChild(secretChild,game.rnd.integerInRange(540,950), game.rnd.integerInRange(570,580),"jennboxonly");
+		if (secretChild.alpha == 1){
+			secretChild.inputEnabled=true;
+			secretChild.events.onInputDown.add(function fadeSecret(){
+				NorthButton.disabled=true;
+				SouthButton.disabled=true;
+				EastButton.disabled=true;
+				WestButton.disabled=true;	
+				$("#buttonsContain").fadeOut(1200);					
+				$("#plane").fadeOut(1200);
+				$("#p1Next").fadeOut(1200);
+				fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+				fadeJenn = game.add.tween(jenn).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true,100);
+				jennBoxSprite = game.add.sprite(secretChild.position.x,secretChild.position.y,"jennBox");
+				jennBoxSprite.alpha=0;
+				jennBoxSprite.smoothed=false;
+				jennBoxSprite.scale.x=5;
+				jennBoxSprite.scale.y=5;
+				jennBoxSprite.anchor.setTo(0.5,0.5);
+				secretChild.inputEnabled=false;
+				fadeAnims.onComplete.add(function (playBox){
+						game.time.events.add(500, playBox2, this);
+						function playBox2(){
+							fadeJennBoxIn = game.add.tween(jennBoxSprite).to( { alpha: 1 }, 1000, Phaser.Easing.Linear.None, true);
+							fadeJennBoxIn.onComplete.add(function (playJennBox){
+								secretChild.kill();
+								game.time.events.remove(birdGGen);
+									game.time.events.add(1000, playBox3, this);
+									function playBox3(){
+									jennBoxSprite.animations.add("jennBoxSprite",[],5,false);
+									secretAnim =jennBoxSprite.animations.play("jennBoxSprite",[],5,false);
+									secretAnim.onComplete.add(function (fadeBox){
+										fadeBoxTween = game.add.tween(jennBoxSprite).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
+										fadeBoxTween.onComplete.add(function (exitScene){
+											window.location = "www.google.com";
+											}),this;
+								
+										}),this;
+									}	
+							}),this;		
+						}		
+				}),this;
+			}),this;
+												
+		}
+		else{
+		secretChild.alpha =0;
+		secretChild.inputEnabled=false;
+		secretChild.kill();
+		}
+	});	 
+	$("#plane").fadeIn(1500);
 	game.time.events.add(1000, enterE, this);}
 	function enterE(){
 	jenn.visible=true;
@@ -824,12 +944,68 @@ body:before {
 	function playNorth(){
 	jenn.alpha=0;
 	loadImg("n");
-	$("#plane").fadeIn(1500);
 	showAnims = game.add.tween(anims).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
 	anims.forEach(function (animsChil,i){
 	animsChil.alpha = game.rnd.integerInRange(0,1);
 	anims.resetChild(animsChil,game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i]);
 	}),this;
+//box anim
+	showBox = game.add.tween(secret).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
+	secret.forEach(function (secretChild){
+		secretChild.alpha = game.rnd.integerInRange(0,10);
+		//secretChild.alpha = 1;
+		secret.resetChild(secretChild,game.rnd.integerInRange(540,950), game.rnd.integerInRange(570,580),"jennboxonly");
+		if (secretChild.alpha == 1){
+			secretChild.inputEnabled=true;
+			secretChild.events.onInputDown.add(function fadeSecret(){
+				NorthButton.disabled=true;
+				SouthButton.disabled=true;
+				EastButton.disabled=true;
+				WestButton.disabled=true;	
+				$("#buttonsContain").fadeOut(1200);					
+				$("#plane").fadeOut(1200);
+				$("#p1Next").fadeOut(1200);
+				fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+				fadeJenn = game.add.tween(jenn).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true,100);
+				jennBoxSprite = game.add.sprite(secretChild.position.x,secretChild.position.y,"jennBox");
+				jennBoxSprite.alpha=0;
+				jennBoxSprite.smoothed=false;
+				jennBoxSprite.scale.x=5;
+				jennBoxSprite.scale.y=5;
+				jennBoxSprite.anchor.setTo(0.5,0.5);
+				secretChild.inputEnabled=false;
+				fadeAnims.onComplete.add(function (playBox){
+						game.time.events.add(500, playBox2, this);
+						function playBox2(){
+							fadeJennBoxIn = game.add.tween(jennBoxSprite).to( { alpha: 1 }, 1000, Phaser.Easing.Linear.None, true);
+							fadeJennBoxIn.onComplete.add(function (playJennBox){
+								secretChild.kill();
+								game.time.events.remove(birdGGen);
+									game.time.events.add(1000, playBox3, this);
+									function playBox3(){
+									jennBoxSprite.animations.add("jennBoxSprite",[],5,false);
+									secretAnim =jennBoxSprite.animations.play("jennBoxSprite",[],5,false);
+									secretAnim.onComplete.add(function (fadeBox){
+										fadeBoxTween = game.add.tween(jennBoxSprite).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
+										fadeBoxTween.onComplete.add(function (exitScene){
+											window.location = "www.google.com";
+											}),this;
+								
+										}),this;
+									}	
+							}),this;		
+						}		
+				}),this;
+			}),this;
+												
+		}
+		else{
+		secretChild.alpha =0;
+		secretChild.inputEnabled=false;
+		secretChild.kill();
+		}
+	});	 
+	$("#plane").fadeIn(1500);
 	game.time.events.add(1000, enterS, this);
 	}
 	function enterS(){
@@ -857,12 +1033,69 @@ body:before {
 	jenn.position.y=20; //is this doing anything?
 	jenn.animations.stop("runSo");
 	loadImg("s");
-	$("#plane").fadeIn(2500);
 	showAnims = game.add.tween(anims).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
 	anims.forEach(function (animsChil,i){
-	animsChil.alpha = game.rnd.integerInRange(0,1);
+	animsChil.alpha = game.rnd.integerInRange(0,2);
 	anims.resetChild(animsChil,game.world.randomX, game.rnd.integerInRange(0,325),allSprites[i]);
 	}),this;
+	$("#plane").fadeIn(2500);
+//box anim
+	showBox = game.add.tween(secret).to( { alpha: 1 }, 600, Phaser.Easing.Linear.None, true);
+	secret.forEach(function (secretChild){
+		secretChild.alpha = game.rnd.integerInRange(0,10);
+		//secretChild.alpha = 1;
+		secret.resetChild(secretChild,game.rnd.integerInRange(540,950), game.rnd.integerInRange(570,580),"jennboxonly");
+		if (secretChild.alpha == 1){
+			secretChild.inputEnabled=true;
+			secretChild.events.onInputDown.add(function fadeSecret(){
+				NorthButton.disabled=true;
+				SouthButton.disabled=true;
+				EastButton.disabled=true;
+				WestButton.disabled=true;	
+				$("#buttonsContain").fadeOut(1200);					
+				$("#plane").fadeOut(1200);
+				$("#p1Next").fadeOut(1200);
+				fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
+				fadeJenn = game.add.tween(jenn).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true,100);
+				jennBoxSprite = game.add.sprite(secretChild.position.x,secretChild.position.y,"jennBox");
+				jennBoxSprite.alpha=0;
+				jennBoxSprite.smoothed=false;
+				jennBoxSprite.scale.x=5;
+				jennBoxSprite.scale.y=5;
+				jennBoxSprite.anchor.setTo(0.5,0.5);
+				secretChild.inputEnabled=false;
+				fadeAnims.onComplete.add(function (playBox){
+						game.time.events.add(500, playBox2, this);
+						function playBox2(){
+							fadeJennBoxIn = game.add.tween(jennBoxSprite).to( { alpha: 1 }, 1000, Phaser.Easing.Linear.None, true);
+							fadeJennBoxIn.onComplete.add(function (playJennBox){
+								secretChild.kill();
+								game.time.events.remove(birdGGen);
+									game.time.events.add(1000, playBox3, this);
+									function playBox3(){
+									jennBoxSprite.animations.add("jennBoxSprite",[],5,false);
+									secretAnim =jennBoxSprite.animations.play("jennBoxSprite",[],5,false);
+									secretAnim.onComplete.add(function (fadeBox){
+										fadeBoxTween = game.add.tween(jennBoxSprite).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
+										fadeBoxTween.onComplete.add(function (exitScene){
+											window.location = "www.google.com";
+											}),this;
+								
+										}),this;
+									}	
+							}),this;		
+						}		
+				}),this;
+			}),this;
+												
+		}
+		
+		else{
+		secretChild.alpha =0;
+		secretChild.inputEnabled=false;
+		secretChild.kill();
+		}
+	});	 
 	game.time.events.add(1000, enterN, this);}
 	function enterN(){
 	fadeJenn = game.add.tween(jenn).to( { alpha: 1 }, 200, Phaser.Easing.Linear.None, true);
@@ -881,20 +1114,16 @@ body:before {
 	EastButton.disabled=false;
 	WestButton.disabled=false;
 	}
-
 </script>
 <script>
 $(window).load(function(){
 	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
 	$('#buttonsContain').css({"top":totalBottom + "px","visibility":"visible"});
 	console.log($('#plane').height());
-	console.log($('#plane').offset().top);
-});
+	console.log($('#plane').offset().top);});
 $(window).resize(function(){
 	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
-	$('#buttonsContain').css("top",totalBottom + "px");
-});
-
+	$('#buttonsContain').css("top",totalBottom + "px");});
 </script>
 </body>
 </html>
