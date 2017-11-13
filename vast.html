@@ -92,12 +92,12 @@ body:before {
 	position:absolute;
 	height:720px;
 	width:1280px;
-	top:40px;left:0; right:0; 
+	top:40px;left:0; right:0;
 	background-color:black;
 	}
 #plane{
 	position:absolute;
-	top:40px;left:0; right:0; 
+	top:40px;left:0; right:0;
 	z-index:1;
 	margin:auto;
 	width:100%;
@@ -106,7 +106,7 @@ body:before {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	border:3px solid magenta;
+	/*border:3px solid magenta;*/
 	border-radius: 25px;
 	overflow: hidden;
 	image-rendering:optimizeSpeed;          	/* Legal fallback */
@@ -127,7 +127,7 @@ body:before {
 #gameDiv{
 	position:absolute;
 	margin:auto;
-	top:40px;left:0; right:0; 
+	top:40px;left:0; right:0;
 	z-index:2;
 	width:100%;
 	max-width:1280px;
@@ -165,7 +165,7 @@ body:before {
 #buttonContain{
 	position:absolute;
 	margin:auto;
-	left:0;right:0; 
+	left:0;right:0;
 	top:800px;
 	width:1280px;
 	}
@@ -301,9 +301,19 @@ body:before {
 }
 </style>
 <body>
+<!--Audio-->
+<audio id="audio1"
+src="sounds/pluckArp_6add9_effects.mp3"
+type="audio/mp3"
+loop="true">
+</audio>
+<audio id="audio2"
+type="audio/mp3">
+</audio>
+<!--End Audio-->
 <div class="containerHelp">
 <div class="easy1"><input id="p1Next" type="button" value="?"></div>
-<div class="easy2">Navigate this strange place as best you can.<br><br><input id="p2Back" type="button" value="> Back"></div>
+<div class="easy2">Navigate this strange place as best you can.<br><br>You'll know the way out when you see it...<br><br><input id="p2Back" type="button" value="> Back"></div>
 </div>
 <script>
 $( "#p1Next" ).click(function() {
@@ -326,252 +336,166 @@ $( "#p2Back" ).click(function() {
 </center>
 </div>
 <script>
-	/*
-	vast
-	*/
-	function vast(number){
-		return "vast" + number.toString();
-	}
-	function setImg(img){
-		var rootContext = "/vast"; //path context for generating paths to the images
-		var imgpath = rootContext + '/images/' + img + '.png';
-		var image = new Image();
-		image.src = imgpath;
-		image.onload = function() {
-			$('#plane').append(image);
-		}
-	}
-	function nextChecker(sourceImagesObj,home,directionToNewNeighbor,neighborNumber,oppositeDirection,neighborhood,theMap){
-	var proposedNewNeighbor = vast(neighborNumber); //convert supplied random 123 number to vast123
-	for (var vnk in theMap){ //loop thru the vast number keys (vnk = "vast123","vast124",etc) in theMap
-		var vnkNeighbor = theMap[vnk][directionToNewNeighbor]; //neighbor at a direction
-		var vnkOppNeighbor = theMap[vnk][oppositeDirection[directionToNewNeighbor]]; //neighbor at opposite direction
-	//if neighbor at direction == supplied random vastNum or if neighbor at opposite direction (need to link back)
-		if (vnkNeighbor == proposedNewNeighbor || vnkOppNeighbor == proposedNewNeighbor){
-			return false;
-		}
-	}
-	for (var dir in neighborhood){
-		if (proposedNewNeighbor == neighborhood[dir]){ //if neighbor already in neighborhood
-			return false;
-		}
-	}	
-	if (proposedNewNeighbor == home){ //if it's the same random number as the current tile
-		return false;
-	} else if (sourceImagesObj[proposedNewNeighbor].indexOf(oppositeDirection[directionToNewNeighbor])<0){ //if we can't link this tile back to the previous tile becaus ethat direction not available to tile	
-		return false;
-	} else {
-		return true;
-	}
-	}
-	/*
-	setStartObj
-	creates an initial {"n":"vast123","s":"vast45"} object
-	see makeNeighbor for comments
-	*/
-	function setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap){
-		var neighborhood = {}; //init
-		for (var directionIndexFromStartImg in sourceImagesObj[startImg]){
-			var direction = sourceImagesObj[startImg][directionIndexFromStartImg];
-			var output = false;
-			while (output == false){
-				var neighborIndex = Math.floor(Math.random() * 238) + 1;
-				output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, neighborhood, theMap);
-			};
-			var neighbor = vast(neighborIndex);
-			neighborhood[direction] = neighbor;
-		}
-		return neighborhood;
-	}
-	/*
-	makeNeighbor
-	returns a vastNum for supplied direction based on rules
-	*/
-	function makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighbor,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap){
-	var output = false; //init
-	count = 0; //init
-	while (output == false && count < 30){
-		var neighborNumber = Math.floor(Math.random() * 238) + 1; //generate 123 part of vast123
-		output = nextChecker(sourceImagesObj,home, directionToNewNeighbor, neighborNumber, oppositeDirection, neighborhood, theMap); //make sure we can use this vast123
-		count = count + 1;
-	}
-	if (count < 30){
-		count = 0;
-		var neighbor = vast(neighborNumber); //convert index to vastNum tile
-		return neighbor;
-	} else {
-		return; //means that we've run out of new neighbors that we can use. end condition
-	}
-	}
-	/*
-	addNeighborhoodsToTheMap
-	loops thru diff, grips neighbors at each directions
-	for each neighbor at each direction
-	loops through directions available to neighbor
-	generates new neighbor at that direction
-	links old neighbor back at the opposite direction
-	assigns neighborhood to themap
-	*/
-	function addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection){
-	for (vnIndex in diff){ //for vastNumberIndex in list of images that were added
-		var oldNeighbor = diff[vnIndex]; //vast number for item in themap we'd like to loop thru. home has a neighborhood already
-		for (var directionFromOldNeighborToHome in theMap[oldNeighbor]){ //for directions available in tile with neighborhood already
-			var home = theMap[oldNeighbor][directionFromOldNeighborToHome]; //the vastNum at a direction for the tile in the diff
-			if (theMap[home]){ continue; } else { //if this already exists in the map
-				var neighborhood = {}; //init
-				//following lines assign the opposite direction of oldNeighbor to home, linking home to old neighbor
-				for (vastNum in theMap){
-					for (direction in theMap[vastNum]){
-						var vastNumAtDirection = theMap[vastNum][direction];
-						if (home == vastNumAtDirection){
-							neighborhood[oppositeDirection[direction]] = vastNum;
-						}
-					}
-				}
-				//following lines assign the rest of the directions available to home
-				var directionsAvailableToHome = sourceImagesObj[home]; //string nsew for directions available in this tile
-				for (directionIndex in directionsAvailableToHome){ //loop thru directions available for this tile, directionIndex = "1""2""3""4" for "nsew"
-					var directionToNewNeighborFromHome = directionsAvailableToHome[directionIndex]; //the direction we're assigning right now, "n" = "nsew"[0]
-					if (neighborhood[directionToNewNeighborFromHome] == null){ //if the neighbor in this direction not already assigned (back-linked to oldNeighbor)
-						neighbor = makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighborFromHome,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap);
-						if (!neighbor){
-							continue;
-						}
-					} else { continue; } //if neighbor was not null, move onto next direction, neighborhood[direction] already assigned
-					neighborhood[directionToNewNeighborFromHome] = neighbor; //add this direction:tile pair to the dictionary
-					if (theMap[neighbor]){ //if theMap has an entry for the neighbor, make sure it's assigned to home
-						if (theMap[neighbor][oppositeDirection[directionToNewNeighborFromHome]] == null){
-							theMap[neighbor][oppositeDirection[directionToNewNeighborFromHome]] = home;
-						}
-					}
-				}	
-				theMap[home] = neighborhood; //add the list of neighbor tiles to the map at the key[vastNum]
-				//console.log(JSON.stringify(theMap)); //log it	
-			}		
-		}
-	}
-	return theMap;
-	}
-	/*
-	loads the bottons with every new image
-	toggles button visibility based on the image's available directions in the map
-	*/
-	function loadButtons(vastImg){
-	var vastImgDirsObj = Vast.theMap[vastImg]; //get the vastNum object from theMap vast123{"n":"vast124","s":"vast125"}
-	vastImgDirs = Object.keys(vastImgDirsObj); //get just a list of the directions ["n","s","e","w"]
-	if (Vast.theMap[vastImg]["n"]){
-		$('#north').css('visibility','visible');
-		
-	} else {
-		$('#north').css('visibility','hidden');
-	}
-	if (Vast.theMap[vastImg]["s"]){
-		$('#south').css('visibility','visible');
-	} else {
-		$('#south').css('visibility','hidden');
-	}
-	if (Vast.theMap[vastImg]["e"]){
-		$('#east').css('visibility','visible');
-	} else {
-		$('#east').css('visibility','hidden');
-	}
-	if (Vast.theMap[vastImg]["w"]){
-		$('#west').css('visibility','visible');
-	} else {
-		$('#west').css('visibility','hidden');
-	}
-	}
-	/*
-	loadImg
-	loads a new image to #plane on input of a button
-	new image loaded corresponds to direction pressed by
-	button, "north" "south" "east" "west"
-	as delineated by the map
-	*/
-	function loadImg(directionTo){
-	directionFrom = Vast.oppositeDirection[directionTo];
-	var currentImg = $('#plane').children("img").prop('src'); //img that is currently displayed
-	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
-	var result = myRe.exec(currentImg); //run that pattern against the url
-	var currentImg = result[0];
-		$('#plane').empty();
-	if (Vast.theMap[currentImg] != null){
-		newImg = Vast.theMap[currentImg][directionTo];
-		//console.log("newImg = " + newImg);
-		setImg(newImg);
-		setTimeout(function(){
-			loadButtons(newImg);
-		},100)
-	}
-	}
-	//init namespace object to store global theMap and oppositeDirection objects
-	var Vast = {};
-	$(document).ready(function(){
-	/*
-	init
-	the array has key values for the 
-	"vastNumber":"stringDirectionNSEW"
-	so. {"vast123":"nsw","vast456":"nsew"}
-	*/
-	var sourceImagesObj = (function() {
-		var sourceImagesObj = null;
-		$.ajax({
-			'async': false,
-			'global': false,
-			'url': "images.json",
-			'dataType': "json",
-			'success': function (data) {
-				json = data;
-			}
-		});
-		return json;
-	})();
-	//init array for opposite_direction values
-	var oppositeDirection = {
-		"n":"s",
-		"s":"n",
-		"e":"w",
-		"w":"e"
-	}
-	//assign to global namespace object
-	Vast.oppositeDirection = oppositeDirection;
-	//make a random starting img
-	var startImgIndex = Math.floor(Math.random() * 238) + 1;
-	var startImg = vast(startImgIndex);
-	setImg(startImg);
-	//init map stuff
-	var theMap = {};
-	var a = Object.keys(theMap);
-	var neighborhood = {};
-	neighborhood = setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap);
-	theMap[startImg] = neighborhood;
-	var diff = Object.keys(theMap)
-	//console.log(theMap);
-	/*
-	fill the map
-	starts with the diff of the previous map and the current map
-	sends the map and the diff to addNeighborhoodsToTheMap	
-	*/
-	while (diff[0]){
-		a = Object.keys(theMap); //assign array to the tiles currently in
-		theMap = addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection);
-		var diff = Object.keys(theMap).filter(function(x) { return a.indexOf(x) < 0});
-	}
-	//assign the completed theMap to the global namespace object
-	Vast.theMap = theMap;
-	//breathe, then load the buttons
-	setTimeout(function(){
-	loadButtons(startImg);
-	},2000);
-	});	
-</script>
-</div>
-
-<script>	
-	var NorthButton = document.getElementById('north');
-	var EastButton = document.getElementById('east');
-	var WestButton = document.getElementById('west');
-	var SouthButton = document.getElementById('south');
+function vast(number){
+return "vast" + number.toString();
+}
+function setImg(img){
+var rootContext = "/vast";
+var imgpath = rootContext + '/images/' + img + '.png';
+var image = new Image();
+image.src = imgpath;
+image.onload = function() {
+$('#plane').append(image);
+}}
+function nextChecker(sourceImagesObj,home,directionToNewNeighbor,neighborNumber,oppositeDirection,neighborhood,theMap){
+var proposedNewNeighbor = vast(neighborNumber);
+for (var vnk in theMap){
+var vnkNeighbor = theMap[vnk][directionToNewNeighbor];
+var vnkOppNeighbor = theMap[vnk][oppositeDirection[directionToNewNeighbor]];
+if (vnkNeighbor == proposedNewNeighbor || vnkOppNeighbor == proposedNewNeighbor){
+return false;
+}}
+for (var dir in neighborhood){
+if (proposedNewNeighbor == neighborhood[dir]){
+return false;
+}}
+if (proposedNewNeighbor == home){
+return false;
+} else if (sourceImagesObj[proposedNewNeighbor].indexOf(oppositeDirection[directionToNewNeighbor])<0){
+return false;
+} else {
+return true;
+}}
+function setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap){
+var neighborhood = {}; //init
+for (var directionIndexFromStartImg in sourceImagesObj[startImg]){
+var direction = sourceImagesObj[startImg][directionIndexFromStartImg];
+var output = false;
+while (output == false){
+var neighborIndex = Math.floor(Math.random() * 238) + 1;
+output = nextChecker(sourceImagesObj, startImg, direction, neighborIndex, oppositeDirection, neighborhood, theMap);};
+var neighbor = vast(neighborIndex);
+neighborhood[direction] = neighbor;}
+return neighborhood;}
+function makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighbor,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap){
+var output = false; //init
+count = 0; //init
+while (output == false && count < 30){
+var neighborNumber = Math.floor(Math.random() * 238) + 1; //generate 123 part of vast123
+output = nextChecker(sourceImagesObj,home, directionToNewNeighbor, neighborNumber, oppositeDirection, neighborhood, theMap); //make sure we can use this vast123
+count = count + 1;}
+if (count < 30){
+count = 0;
+var neighbor = vast(neighborNumber); //convert index to vastNum tile
+return neighbor;
+} else {
+return; }}
+function addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection){
+for (vnIndex in diff){
+var oldNeighbor = diff[vnIndex];
+for (var directionFromOldNeighborToHome in theMap[oldNeighbor]){
+var home = theMap[oldNeighbor][directionFromOldNeighborToHome];
+if (theMap[home]){ continue; } else {
+var neighborhood = {}; //init
+for (vastNum in theMap){
+for (direction in theMap[vastNum]){
+var vastNumAtDirection = theMap[vastNum][direction];
+if (home == vastNumAtDirection){
+neighborhood[oppositeDirection[direction]] = vastNum;
+}}}
+var directionsAvailableToHome = sourceImagesObj[home];
+for (directionIndex in directionsAvailableToHome){
+var directionToNewNeighborFromHome = directionsAvailableToHome[directionIndex];
+if (neighborhood[directionToNewNeighborFromHome] == null){
+neighbor = makeNeighbor(sourceImagesObj,oldNeighbor,directionToNewNeighborFromHome,oppositeDirection,directionFromOldNeighborToHome,home,neighborhood,theMap);
+if (!neighbor){
+continue;}
+} else { continue; }
+neighborhood[directionToNewNeighborFromHome] = neighbor;
+if (theMap[neighbor]){
+if (theMap[neighbor][oppositeDirection[directionToNewNeighborFromHome]] == null){
+theMap[neighbor][oppositeDirection[directionToNewNeighborFromHome]] = home;
+}}}
+theMap[home] = neighborhood;
+}}}
+return theMap;
+}
+function loadButtons(vastImg){
+var vastImgDirsObj = Vast.theMap[vastImg];
+vastImgDirs = Object.keys(vastImgDirsObj);
+if (Vast.theMap[vastImg]["n"]){
+$('#north').css('visibility','visible');
+} else {
+$('#north').css('visibility','hidden');}
+if (Vast.theMap[vastImg]["s"]){
+$('#south').css('visibility','visible');
+} else {
+$('#south').css('visibility','hidden');}
+if (Vast.theMap[vastImg]["e"]){
+$('#east').css('visibility','visible');
+} else {
+$('#east').css('visibility','hidden');}
+if (Vast.theMap[vastImg]["w"]){
+$('#west').css('visibility','visible');
+} else {
+$('#west').css('visibility','hidden');
+}}
+function loadImg(directionTo){
+directionFrom = Vast.oppositeDirection[directionTo];
+var currentImg = $('#plane').children("img").prop('src');
+var myRe = /vast\d{1,}/;
+var result = myRe.exec(currentImg);
+var currentImg = result[0];
+$('#plane').empty();
+if (Vast.theMap[currentImg] != null){
+newImg = Vast.theMap[currentImg][directionTo];
+console.log("newImg = " + newImg);
+setImg(newImg);
+setTimeout(function(){
+loadButtons(newImg);
+},100)}}
+var Vast = {};
+$(document).ready(function(){
+var sourceImagesObj = (function() {
+var sourceImagesObj = null;
+$.ajax({
+'async': false,
+'global': false,
+'url': "images.json",
+'dataType': "json",
+'success': function (data) {
+json = data;
+}});
+return json;
+})();
+var oppositeDirection = {
+"n":"s",
+"s":"n",
+"e":"w",
+"w":"e"}
+Vast.oppositeDirection = oppositeDirection;
+var startImgIndex = Math.floor(Math.random() * 238) + 1;
+var startImg = vast(startImgIndex);
+setImg(startImg);
+var theMap = {};
+var a = Object.keys(theMap);
+var neighborhood = {};
+neighborhood = setStartObj(startImg,sourceImagesObj,oppositeDirection,theMap);
+theMap[startImg] = neighborhood;
+var diff = Object.keys(theMap)
+console.log(theMap);
+while (diff[0]){
+a = Object.keys(theMap);
+theMap = addNeighborhoodsToTheMap(theMap,diff,sourceImagesObj,oppositeDirection);
+var diff = Object.keys(theMap).filter(function(x) { return a.indexOf(x) < 0});}
+Vast.theMap = theMap;
+setTimeout(function(){
+loadButtons(startImg);
+},2000);});
+//LEgacY CODE FOLLOWS
+//<\/script>
+//<\/div>
+//<script>
 	var game = new Phaser.Game(1280, 720, Phaser.CANVAS, 'gameDiv', { preload: preload, create: create, update: update}, true);
 	function preload(){
 	game.load.spritesheet("jennRun1","rooms/jennRun1.png",32,61);
@@ -600,32 +524,63 @@ $( "#p2Back" ).click(function() {
 	game.load.image("background1","rooms/background1.png");
 	game.load.spritesheet("jennBox","rooms/jennBox.png",72,55);
 	game.load.spritesheet("jennboxonly","rooms/jennboxonly.png",72,55);
+	var fxlist =
+	['sounds/sparrows/sparrow1.mp3',
+	'sounds/sparrows/sparrow2.mp3',
+	'sounds/sparrows/sparrow3.mp3',
+	'sounds/sparrows/sparrow4.mp3',
+	'sounds/sparrows/sparrow5.mp3',
+	'sounds/sparrows/sparrow6.mp3',
+	'sounds/sparrows/sparrow7.mp3',
+	'sounds/sparrows/sparrow8.mp3',
+	'sounds/sparrows/sparrow9.mp3',
+	'sounds/sparrows/sparrow10.mp3',
+	'sounds/sparrows/sparrow11.mp3'];
+	for (var i=1; i<=fxlist.length; i++){
+	game.load.audio('sparrow'+i,"sounds/sparrows/sparrow"+i+".mp3");
+	}
 	}
 	function create(){
-	$("body").append("<div id='bang'></div>");
-	game.physics.startSystem(Phaser.Physics.ARCADE);	
+//Audio begin
+	var audio1 = document.getElementById("audio1");
+	audio1.volume = 0;
+	$(audio1).animate({volume: .04}, 6400);
+	audio1.play();
+	var initTime = game.rnd.integerInRange(10000,20000);
+	var rndAudio = function(){
+		initTime = game.rnd.integerInRange(10000,20000);
+		//var audio2 = document.getElementById("audio2");
+		$('#audio2').attr('src','sounds/sparrows/sparrow'+game.rnd.integerInRange(1,11)+'.mp3');
+		audio2.volume = 0;
+		$(audio2).animate({volume: .02}, 6400);
+		audio2.play();
+		setTimeout(rndAudio,initTime);}
+	setTimeout(rndAudio,initTime);
+
+	game.physics.startSystem(Phaser.Physics.ARCADE);
 	game.world.setBounds(0,0, 1280,720);
-	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;	
+	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 	game.scale.minWidth= 640;
 	game.scale.minHeight=360;
 	jenn = game.add.sprite(game.world.centerX,game.world.centerY+200,"jennRun1");
-	var startFacingObj = (function() {
-		var startFacingObj = null;
-		$.ajax({
-			'async': false,
-			'global': false,
-			'url': "startfacing.json",
-			'dataType': "json",
-			'success': function (data) {
-				json = data;
-			}
-		});
-		return json;
+  var startFacingObj = (function() {
+			var startFacingObj = null;
+			$.ajax({
+				'async': false,
+				'global': false,
+				'url': "startfacing.json",
+				'dataType': "json",
+				'success': function (data) {
+					json = data;
+				}
+			});
+			return json;
 	})();
 	var currentImg = $('#plane').children("img").prop('src');
+	console.log($('#plane').children("img"));
 	var myRe = /vast\d{1,}/; //make a regex pattern to grip just the vast123 part
 	var result = myRe.exec(currentImg); //run that pattern against the url
-	var currentImg = result[0];
+    var currentImg = result[0];
 	var faceDirection = startFacingObj[currentImg];
 	if (faceDirection == "n"){
 		jenn.frame=58;
@@ -651,6 +606,9 @@ $( "#p2Back" ).click(function() {
 	jenn.body.velocity.x=300;
 	}),this;
 	*/
+  $('#plane').css({'border':'3px solid magenta'});
+//Bang
+  $("body").append("<div id='bang'></div>");
 //OBJECTS
 	secret = game.add.group();
 	for (var i = 0; i < 1; i++)
@@ -664,7 +622,7 @@ $( "#p2Back" ).click(function() {
 	secretChild.alpha = 0;
 	}
 	anims = game.add.group();
-	allSprites = 
+	allSprites =
 	['anim1','anim2','anim3','anim4','anim5','anim6','anim7','anim8','anim9','anim10','anim11','anim12','anim13','anim14','anim15','anim16','anim17','anim18','anim19'];
 	for (var i = 0; i < 19; i++)
     {
@@ -701,7 +659,7 @@ $( "#p2Back" ).click(function() {
 //MOVE JENN
 //BUTTON FUNCTION MOVE ON CLICK
 //EAST
-	EastButton.onclick = function moveJennEast(){ 
+	EastButton.onclick = function moveJennEast(){
 	NorthButton.disabled=true; //deactivate all other buttons once one is clicked
 	SouthButton.disabled=true;
 	EastButton.disabled=true;
@@ -753,7 +711,7 @@ $( "#p2Back" ).click(function() {
 	jenn.scale.x=5.7; //appear to move forward
 	jenn.scale.y=5.7;
 	jenn.animations.add("runSo",[36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,69,70,71,72,73,74],10,false);
-	jenn.animations.play("runSo"); 
+	jenn.animations.play("runSo");
 	jenn.body.velocity.y=50;
 	$("#plane").fadeOut(1200);
 	fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
@@ -793,12 +751,12 @@ $( "#p2Back" ).click(function() {
 	bird.enableBody = true;
 	}
 	bird.anchor.setTo(0, 0.5);
-	bird.reset(0,game.rnd.integerInRange(0,325)); 
+	bird.reset(0,game.rnd.integerInRange(0,325));
 	bird.body.velocity.x = velocityX;
 	bird.checkWorldBounds = true;
 	bird.outOfBoundsKill = true;
 	}}
-//LOAD EAST AND ENTER W	
+//LOAD EAST AND ENTER W
 	function playEast(){
 	jenn.visible=false;
 	loadImg("e");
@@ -816,11 +774,13 @@ $( "#p2Back" ).click(function() {
 		if (secretChild.alpha == 1){
 			secretChild.inputEnabled=true;
 			secretChild.events.onInputDown.add(function fadeSecret(){
+				var audio1 = document.getElementById("audio1");
+				$(audio1).animate({volume: 0}, 3400);
 				NorthButton.disabled=true;
 				SouthButton.disabled=true;
 				EastButton.disabled=true;
-				WestButton.disabled=true;	
-				$("#buttonsContain").fadeOut(1200);					
+				WestButton.disabled=true;
+				$("#buttonsContain").fadeOut(1200);
 				$("#plane").fadeOut(1200);
 				$("#p1Next").fadeOut(1200);
 				fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
@@ -844,25 +804,27 @@ $( "#p2Back" ).click(function() {
 									jennBoxSprite.animations.add("jennBoxSprite",[],5,false);
 									secretAnim =jennBoxSprite.animations.play("jennBoxSprite",[],5,false);
 									secretAnim.onComplete.add(function (fadeBox){
+										var audio2 = document.getElementById("audio2");
+										$(audio2).animate({volume: 0}, 1500);
 										fadeBoxTween = game.add.tween(jennBoxSprite).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
 										fadeBoxTween.onComplete.add(function (exitScene){
-											window.location = "www.google.com";
+											window.location = document.referrer;
 											}),this;
-								
+
 										}),this;
-									}	
-							}),this;		
-						}		
+									}
+							}),this;
+						}
 				}),this;
 			}),this;
-												
+
 		}
 		else{
 		secretChild.alpha =0;
 		secretChild.inputEnabled=false;
 		secretChild.kill();
 		}
-	});	 
+	});
 	$("#plane").fadeIn(1500);
 	game.time.events.add(2000, enterW, this);
 	}
@@ -878,12 +840,12 @@ $( "#p2Back" ).click(function() {
 	function standStill(){
 	jenn.animations.stop();
 	jenn.frame =0;
-	NorthButton.disabled=false; 
+	NorthButton.disabled=false;
 	SouthButton.disabled=false;
 	EastButton.disabled=false;
 	WestButton.disabled=false;
 	}
-//LOAD W AND ENTER E	
+//LOAD W AND ENTER E
 	function playWest(){
 	jenn.visible=false;
 	loadImg("w");
@@ -901,11 +863,13 @@ $( "#p2Back" ).click(function() {
 		if (secretChild.alpha == 1){
 			secretChild.inputEnabled=true;
 			secretChild.events.onInputDown.add(function fadeSecret(){
+					var audio1 = document.getElementById("audio1");
+					$(audio1).animate({volume: 0}, 3400);
 				NorthButton.disabled=true;
 				SouthButton.disabled=true;
 				EastButton.disabled=true;
-				WestButton.disabled=true;	
-				$("#buttonsContain").fadeOut(1200);					
+				WestButton.disabled=true;
+				$("#buttonsContain").fadeOut(1200);
 				$("#plane").fadeOut(1200);
 				$("#p1Next").fadeOut(1200);
 				fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
@@ -929,25 +893,27 @@ $( "#p2Back" ).click(function() {
 									jennBoxSprite.animations.add("jennBoxSprite",[],5,false);
 									secretAnim =jennBoxSprite.animations.play("jennBoxSprite",[],5,false);
 									secretAnim.onComplete.add(function (fadeBox){
+										var audio2 = document.getElementById("audio2");
+										$(audio2).animate({volume: 0}, 1500);
 										fadeBoxTween = game.add.tween(jennBoxSprite).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
 										fadeBoxTween.onComplete.add(function (exitScene){
-											window.location = "www.google.com";
+											window.location = document.referrer;
 											}),this;
-								
+
 										}),this;
-									}	
-							}),this;		
-						}		
+									}
+							}),this;
+						}
 				}),this;
 			}),this;
-												
+
 		}
 		else{
 		secretChild.alpha =0;
 		secretChild.inputEnabled=false;
 		secretChild.kill();
 		}
-	});	 
+	});
 	$("#plane").fadeIn(1500);
 	game.time.events.add(1000, enterE, this);}
 	function enterE(){
@@ -962,12 +928,12 @@ $( "#p2Back" ).click(function() {
 	function standStill2(){
 	jenn.frame = 7;
 	jenn.animations.stop();
-	NorthButton.disabled=false; 
+	NorthButton.disabled=false;
 	SouthButton.disabled=false;
 	EastButton.disabled=false;
 	WestButton.disabled=false;
 	}
-//LOAD N AND ENTER S 	
+//LOAD N AND ENTER S
 	function playNorth(){
 	jenn.alpha=0;
 	loadImg("n");
@@ -985,11 +951,13 @@ $( "#p2Back" ).click(function() {
 		if (secretChild.alpha == 1){
 			secretChild.inputEnabled=true;
 			secretChild.events.onInputDown.add(function fadeSecret(){
+					var audio1 = document.getElementById("audio1");
+					$(audio1).animate({volume: 0}, 3400);
 				NorthButton.disabled=true;
 				SouthButton.disabled=true;
 				EastButton.disabled=true;
-				WestButton.disabled=true;	
-				$("#buttonsContain").fadeOut(1200);					
+				WestButton.disabled=true;
+				$("#buttonsContain").fadeOut(1200);
 				$("#plane").fadeOut(1200);
 				$("#p1Next").fadeOut(1200);
 				fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
@@ -1013,32 +981,34 @@ $( "#p2Back" ).click(function() {
 									jennBoxSprite.animations.add("jennBoxSprite",[],5,false);
 									secretAnim =jennBoxSprite.animations.play("jennBoxSprite",[],5,false);
 									secretAnim.onComplete.add(function (fadeBox){
+										var audio2 = document.getElementById("audio2");
+										$(audio2).animate({volume: 0}, 1500);
 										fadeBoxTween = game.add.tween(jennBoxSprite).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
 										fadeBoxTween.onComplete.add(function (exitScene){
-											window.location = "www.google.com";
+											window.location = document.referrer;
 											}),this;
-								
+
 										}),this;
-									}	
-							}),this;		
-						}		
+									}
+							}),this;
+						}
 				}),this;
 			}),this;
-												
+
 		}
 		else{
 		secretChild.alpha =0;
 		secretChild.inputEnabled=false;
 		secretChild.kill();
 		}
-	});	 
+	});
 	$("#plane").fadeIn(1500);
 	game.time.events.add(1000, enterS, this);
 	}
 	function enterS(){
 	jenn.animations.stop("runNo");
 	fadeJenn = game.add.tween(jenn).to( { alpha: 1 }, 200, Phaser.Easing.Linear.None, true);
-	jenn.scale.x=4;				
+	jenn.scale.x=4;
 	jenn.scale.y=4;
 	jenn.x = game.world.centerX;
 	jenn.y =650;
@@ -1049,7 +1019,7 @@ $( "#p2Back" ).click(function() {
 	function standStill3(){
 	jenn.frame = 58;
 	jenn.animations.stop();
-	NorthButton.disabled=false; 
+	NorthButton.disabled=false;
 	SouthButton.disabled=false;
 	EastButton.disabled=false;
 	WestButton.disabled=false;
@@ -1075,11 +1045,13 @@ $( "#p2Back" ).click(function() {
 		if (secretChild.alpha == 1){
 			secretChild.inputEnabled=true;
 			secretChild.events.onInputDown.add(function fadeSecret(){
+					var audio1 = document.getElementById("audio1");
+					$(audio1).animate({volume: 0}, 3400);
 				NorthButton.disabled=true;
 				SouthButton.disabled=true;
 				EastButton.disabled=true;
-				WestButton.disabled=true;	
-				$("#buttonsContain").fadeOut(1200);					
+				WestButton.disabled=true;
+				$("#buttonsContain").fadeOut(1200);
 				$("#plane").fadeOut(1200);
 				$("#p1Next").fadeOut(1200);
 				fadeAnims = game.add.tween(anims).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None, true);
@@ -1103,30 +1075,32 @@ $( "#p2Back" ).click(function() {
 									jennBoxSprite.animations.add("jennBoxSprite",[],5,false);
 									secretAnim =jennBoxSprite.animations.play("jennBoxSprite",[],5,false);
 									secretAnim.onComplete.add(function (fadeBox){
+										var audio2 = document.getElementById("audio2");
+										$(audio2).animate({volume: 0}, 1500);
 										fadeBoxTween = game.add.tween(jennBoxSprite).to( { alpha: 0 }, 1500, Phaser.Easing.Linear.None,true);
 										fadeBoxTween.onComplete.add(function (exitScene){
-											window.location = "www.google.com";
+											window.location = document.referrer;
 											}),this;
-								
+
 										}),this;
-									}	
-							}),this;		
-						}		
+									}
+							}),this;
+						}
 				}),this;
 			}),this;
-												
+
 		}
-		
+
 		else{
 		secretChild.alpha =0;
 		secretChild.inputEnabled=false;
 		secretChild.kill();
 		}
-	});	 
+	});
 	game.time.events.add(1000, enterN, this);}
 	function enterN(){
 	fadeJenn = game.add.tween(jenn).to( { alpha: 1 }, 200, Phaser.Easing.Linear.None, true);
-	jenn.scale.x=4;					
+	jenn.scale.x=4;
 	jenn.scale.y=4;
 	jenn.x = game.world.centerX;
 	jenn.y =450;
@@ -1136,22 +1110,29 @@ $( "#p2Back" ).click(function() {
 	function standStill4(){
 	jenn.frame = 59;
 	jenn.animations.stop();
-	NorthButton.disabled=false; 
+	NorthButton.disabled=false;
 	SouthButton.disabled=false;
 	EastButton.disabled=false;
 	WestButton.disabled=false;
 	}
+  //LEGACY CODE FOLLOWS
+  //<\/script>
+  //<script>
+  $(window).load(function(){
+  	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
+  	$('#buttonsContain').css({"top":totalBottom + "px","visibility":"visible"});
+  	console.log($('#plane').height());
+  	console.log($('#plane').offset().top);});
+  $(window).resize(function(){
+  	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
+  	$('#buttonsContain').css("top",totalBottom + "px");});
+  	var NorthButton = document.getElementById('north');
+  	var EastButton = document.getElementById('east');
+  	var WestButton = document.getElementById('west');
+  	var SouthButton = document.getElementById('south');
+  //LEGACY CODE FOLLOWS
+  //<\/script>
 </script>
-<script>
-$(window).load(function(){
-	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
-	$('#buttonsContain').css({"top":totalBottom + "px","visibility":"visible"});
-	//onsole.log($('#plane').height());
-	//console.log($('#plane').offset().top);
-});
-$(window).resize(function(){
-	var totalBottom = $('#plane').height() + $('#plane').offset().top + 20;
-	$('#buttonsContain').css("top",totalBottom + "px");});
-</script>
+
 </body>
 </html>
